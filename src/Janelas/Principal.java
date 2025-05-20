@@ -8,17 +8,46 @@ import Janelas.KnightJanela;
 import Janelas.PaladinJanela;
 import Janelas.SorcererJanela;
 import Janelas.DruidJanela;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import java.awt.Image;
+import javax.swing.*;
+import java.awt.*;
 
 public class Principal extends javax.swing.JFrame {
 
-    /**
-     * Creates new form Principal
-     */
+    private JLabel backgroundLabel;
+
     public Principal() {
-        initComponents();
-        setSize(180, 300);
+        initComponents();  // inicializa seus botões, labels etc
+
+        // Carrega e redimensiona a imagem do fundo
+        ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/imagens/NoPing48.jpg"));
+        Image img = backgroundImage.getImage().getScaledInstance(500, 500, Image.SCALE_SMOOTH);
+        ImageIcon resizedIcon = new ImageIcon(img);
+
+        // Cria o JLabel do fundo
+        backgroundLabel = new JLabel(resizedIcon);
+        backgroundLabel.setBounds(0, 0, 500, 500);
+
+        // Define layout nulo para posicionamento absoluto
+        getLayeredPane().setLayout(null);
+
+        // Adiciona o JLabel do fundo na camada mais baixa (BACKGROUND_LAYER)
+        getLayeredPane().add(backgroundLabel, new Integer(Integer.MIN_VALUE));
+
+        // Ajusta o tamanho da janela
+        setSize(500, 500);
         setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+        // Faz seu painel principal transparente para deixar ver o fundo
+        ((JPanel)getContentPane()).setOpaque(false);
     }
+
+
+    
+    
 
     /**
      * This method is called from within the constructor to initialize the form.
@@ -83,19 +112,19 @@ public class Principal extends javax.swing.JFrame {
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                .addContainerGap(40, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jButtonSorcerer, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonKnight, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonPaladin, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jButtonDruid, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(34, 34, 34))
+                .addContainerGap(294, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(28, 28, 28)
+                .addGap(20, 20, 20)
                 .addComponent(jButtonKnight)
                 .addGap(18, 18, 18)
                 .addComponent(jButtonPaladin)
@@ -103,7 +132,7 @@ public class Principal extends javax.swing.JFrame {
                 .addComponent(jButtonDruid)
                 .addGap(18, 18, 18)
                 .addComponent(jButtonSorcerer)
-                .addContainerGap(121, Short.MAX_VALUE))
+                .addContainerGap(147, Short.MAX_VALUE))
         );
 
         pack();
@@ -124,7 +153,6 @@ public class Principal extends javax.swing.JFrame {
     private void jButtonKnightMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonKnightMouseClicked
         KnightJanela knightJanela = new KnightJanela();
         knightJanela.setVisible(true);
-
     }//GEN-LAST:event_jButtonKnightMouseClicked
 
     private void jButtonPaladinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPaladinMouseClicked

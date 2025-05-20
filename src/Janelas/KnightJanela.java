@@ -6,19 +6,22 @@ package Janelas;
 
 import Controller.KnightController;
 import Model.Knight;
-import javax.swing.JOptionPane;
 import javax.swing.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
 import java.util.ArrayList;
+import java.awt.GridLayout;
+import javax.swing.ImageIcon;
+import java.awt.Image;
+
 
 public class KnightJanela extends javax.swing.JFrame {
 
     private KnightController controller = new KnightController();
     private List<Knight> knightsList = new ArrayList<>();
     private int currentIndex = 0;
-
+    private JLabel backgroundLabel;
     /**
      * Creates new form Knight
      */
@@ -27,6 +30,24 @@ public class KnightJanela extends javax.swing.JFrame {
         carregarKnights(); // Carregar os knights ao iniciar a janela
         exibirKnight(); // Exibir o primeiro Knight
         setLocationRelativeTo(null);
+        
+        ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/imagens/1.png"));
+        Image img = backgroundImage.getImage().getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_SMOOTH);
+        backgroundLabel = new JLabel(new ImageIcon(img));
+
+        backgroundLabel.setBounds(0, 0, this.getWidth(), this.getHeight());
+
+        // Usar layout nulo para posicionar o JLabel no fundo
+        getLayeredPane().setLayout(null);
+        getLayeredPane().add(backgroundLabel, new Integer(Integer.MIN_VALUE));
+
+        // Deixar o painel principal transparente para o fundo aparecer
+        ((JPanel) this.getContentPane()).setOpaque(false);
+
+        // Ajustar tamanho e outras configurações da janela (se quiser)
+        setSize(500, 500);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     private void carregarKnights() {
@@ -92,6 +113,7 @@ public class KnightJanela extends javax.swing.JFrame {
         jTextPaneSkillKnight = new javax.swing.JTextPane();
         jLabelKnightSalvos = new javax.swing.JLabel();
         jButtonPassarKnight = new javax.swing.JButton();
+        jButtonPesquisarKnight = new javax.swing.JButton();
 
         jButton3.setText("jButton3");
 
@@ -130,6 +152,7 @@ public class KnightJanela extends javax.swing.JFrame {
             }
         });
 
+        jLabel1.setForeground(new java.awt.Color(51, 255, 51));
         jLabel1.setText("Nome");
 
         jTextFieldNomeKnight.addActionListener(new java.awt.event.ActionListener() {
@@ -138,8 +161,10 @@ public class KnightJanela extends javax.swing.JFrame {
             }
         });
 
+        jLabel2.setForeground(new java.awt.Color(102, 255, 102));
         jLabel2.setText("Level");
 
+        jLabel3.setForeground(new java.awt.Color(51, 255, 51));
         jLabel3.setText("Skill");
 
         jTextFieldLevelKnight.addActionListener(new java.awt.event.ActionListener() {
@@ -150,7 +175,10 @@ public class KnightJanela extends javax.swing.JFrame {
 
         jScrollPane1.setViewportView(jTextPaneSkillKnight);
 
-        jButtonPassarKnight.setText(">>>");
+        jLabelKnightSalvos.setFont(new java.awt.Font("Segoe UI", 3, 12)); // NOI18N
+        jLabelKnightSalvos.setForeground(new java.awt.Color(51, 255, 51));
+
+        jButtonPassarKnight.setText("Atualizar ou >>>");
         jButtonPassarKnight.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 jButtonPassarKnightMouseClicked(evt);
@@ -162,6 +190,13 @@ public class KnightJanela extends javax.swing.JFrame {
             }
         });
 
+        jButtonPesquisarKnight.setText("Pesquisar");
+        jButtonPesquisarKnight.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonPesquisarKnightMouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -169,13 +204,6 @@ public class KnightJanela extends javax.swing.JFrame {
             .addGroup(layout.createSequentialGroup()
                 .addGap(29, 29, 29)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonSalvarKnight)
-                        .addGap(74, 74, 74)
-                        .addComponent(jButtonExcluirKnight)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
-                        .addComponent(jButtonAlterarKnight)
-                        .addGap(29, 29, 29))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                             .addComponent(jLabelKnightSalvos, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE)
@@ -190,8 +218,17 @@ public class KnightJanela extends javax.swing.JFrame {
                                     .addComponent(jTextFieldLevelKnight)
                                     .addComponent(jScrollPane1))))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButtonPassarKnight)
-                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
+                        .addComponent(jButtonPesquisarKnight)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButtonSalvarKnight)
+                        .addGap(74, 74, 74)
+                        .addComponent(jButtonExcluirKnight)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButtonPassarKnight)
+                            .addComponent(jButtonAlterarKnight))
+                        .addGap(29, 29, 29))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -199,7 +236,8 @@ public class KnightJanela extends javax.swing.JFrame {
                 .addGap(31, 31, 31)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextFieldNomeKnight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextFieldNomeKnight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonPesquisarKnight))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
@@ -209,10 +247,10 @@ public class KnightJanela extends javax.swing.JFrame {
                     .addComponent(jLabel3)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabelKnightSalvos)
-                    .addComponent(jButtonPassarKnight))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 35, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButtonPassarKnight)
+                    .addComponent(jLabelKnightSalvos))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButtonSalvarKnight)
                     .addComponent(jButtonExcluirKnight)
@@ -245,6 +283,7 @@ public class KnightJanela extends javax.swing.JFrame {
 
         // Mensagem de sucesso
         JOptionPane.showMessageDialog(this, "Knight salvo com sucesso!");
+        carregarKnights();
     }//GEN-LAST:event_jButtonSalvarKnightMouseClicked
 
     private void jButtonSalvarKnightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSalvarKnightActionPerformed
@@ -286,54 +325,88 @@ public class KnightJanela extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonExcluirKnightMouseClicked
 
     private void jButtonAlterarKnightMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAlterarKnightMouseClicked
-        if (!knightsList.isEmpty()) {
-            // Obtém o knight atual
-            Knight currentKnight = knightsList.get(currentIndex);
+        if (knightsList.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Não há knights para alterar.");
+            return;
+        }
 
-            // Solicita ao usuário o novo nome, level e skill
-            String novoNome = JOptionPane.showInputDialog(this, "Digite o novo nome:", currentKnight.getNome());
-            if (novoNome == null) {
-                return; // Se o usuário cancelar a edição
-            }
-            String novoLevelStr = JOptionPane.showInputDialog(this, "Digite o novo level:", String.valueOf(currentKnight.getLevel()));
-            if (novoLevelStr == null) {
-                return; // Se o usuário cancelar a edição
-            }
-            String novoSkillStr = JOptionPane.showInputDialog(this, "Digite a nova skill:", String.valueOf(currentKnight.getSkill()));
-            if (novoSkillStr == null) {
-                return; // Se o usuário cancelar a edição
-            }
+        Knight currentKnight = knightsList.get(currentIndex);
+
+        // Cria os campos e preenche com os dados atuais
+        JTextField nomeField = new JTextField(currentKnight.getNome());
+        JTextField levelField = new JTextField(String.valueOf(currentKnight.getLevel()));
+        JTextField skillField = new JTextField(String.valueOf(currentKnight.getSkill()));
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Nome:"));
+        panel.add(nomeField);
+        panel.add(new JLabel("Level:"));
+        panel.add(levelField);
+        panel.add(new JLabel("Skill:"));
+        panel.add(skillField);
+
+        int resultado = JOptionPane.showConfirmDialog(this, panel, "Editar Knight",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (resultado == JOptionPane.OK_OPTION) {
             try {
-                int novoLevel = Integer.parseInt(novoLevelStr);
-                int novoSkill = Integer.parseInt(novoSkillStr);
+                String novoNome = nomeField.getText().trim();
+                int novoLevel = Integer.parseInt(levelField.getText().trim());
+                int novoSkill = Integer.parseInt(skillField.getText().trim());
 
                 // Atualiza os dados do knight
                 currentKnight.setNome(novoNome);
                 currentKnight.setLevel(novoLevel);
                 currentKnight.setSkill(novoSkill);
 
-                // Atualiza a exibição do knight alterado
+                // Atualiza exibição e arquivo
                 exibirKnight();
-
-                // Atualiza o arquivo knights.txt
                 atualizarArquivo();
 
-                // Informa ao usuário que a alteração foi realizada com sucesso
                 JOptionPane.showMessageDialog(this, "Knight alterado com sucesso!");
-
             } catch (NumberFormatException e) {
-                // Caso o level ou a skill não sejam números válidos
-                JOptionPane.showMessageDialog(this, "O level e a skill devem ser números inteiros.");
+                JOptionPane.showMessageDialog(this, "Level e Skill devem ser números inteiros.");
             }
-        } else {
-            // Se a lista de knights estiver vazia
-            JOptionPane.showMessageDialog(this, "Não há knights para alterar.");
         }
     }//GEN-LAST:event_jButtonAlterarKnightMouseClicked
 
     private void jTextFieldNomeKnightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldNomeKnightActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextFieldNomeKnightActionPerformed
+
+    private void jButtonPesquisarKnightMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPesquisarKnightMouseClicked
+        String nomePesquisa = jTextFieldNomeKnight.getText().trim();
+        if (nomePesquisa.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, informe o nome para pesquisar.");
+            return;
+        }
+
+        boolean encontrado = false;
+
+        for (int i = 0; i < knightsList.size(); i++) {
+            Knight k = knightsList.get(i);
+            if (k.getNome().equalsIgnoreCase(nomePesquisa)) {
+                // Atualiza campos com o Knight encontrado
+                jTextFieldNomeKnight.setText(k.getNome());
+                jTextFieldLevelKnight.setText(String.valueOf(k.getLevel()));
+                jTextPaneSkillKnight.setText(String.valueOf(k.getSkill()));
+
+                // Atualiza índice atual
+                currentIndex = i;
+
+                // Atualiza label
+                exibirKnight();
+
+                encontrado = true;
+                break;
+            }
+        }
+
+        if (!encontrado) {
+            JOptionPane.showMessageDialog(this, "Knight com nome '" + nomePesquisa + "' não encontrado.");
+        }
+
+    }//GEN-LAST:event_jButtonPesquisarKnightMouseClicked
 
     /**
      * @param args the command line arguments
@@ -377,6 +450,7 @@ public class KnightJanela extends javax.swing.JFrame {
     private javax.swing.JButton jButtonAlterarKnight;
     private javax.swing.JButton jButtonExcluirKnight;
     private javax.swing.JButton jButtonPassarKnight;
+    private javax.swing.JButton jButtonPesquisarKnight;
     private javax.swing.JButton jButtonSalvarKnight;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

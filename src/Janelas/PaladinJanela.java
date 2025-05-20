@@ -4,18 +4,90 @@
  */
 package Janelas;
 
-/**
- *
- * @author felip
- */
+import Controller.PaladinController;
+import Model.Paladin;
+import javax.swing.*;
+import java.io.*;
+import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.awt.GridLayout;
+import javax.swing.ImageIcon;
+import java.awt.Image;
+
 public class PaladinJanela extends javax.swing.JFrame {
 
+    private PaladinController controller = new PaladinController();
+    private List<Paladin> paladinsList = new ArrayList<>();
+    private int currentIndex = 0;
+    private JLabel backgroundLabel;
+
     /**
-     * Creates new form Paladin
+     * Creates new form Knight
      */
     public PaladinJanela() {
         initComponents();
+        carregarPaladins(); // Carregar os knights ao iniciar a janela
+        exibirPaladin(); // Exibir o primeiro Knight
         setLocationRelativeTo(null);
+
+        ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/imagens/2.png"));
+        Image img = backgroundImage.getImage().getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_SMOOTH);
+        backgroundLabel = new JLabel(new ImageIcon(img));
+
+        backgroundLabel.setBounds(0, 0, this.getWidth(), this.getHeight());
+
+        // Usar layout nulo para posicionar o JLabel no fundo
+        getLayeredPane().setLayout(null);
+        getLayeredPane().add(backgroundLabel, new Integer(Integer.MIN_VALUE));
+
+        // Deixar o painel principal transparente para o fundo aparecer
+        ((JPanel) this.getContentPane()).setOpaque(false);
+
+        // Ajustar tamanho e outras configurações da janela (se quiser)
+        setSize(500, 500);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+    private void carregarPaladins() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/Personagens/paladins.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] dados = line.split(",");
+                if (dados.length == 3) {
+                    String nome = dados[0];
+                    int level = Integer.parseInt(dados[1]);
+                    int skill = Integer.parseInt(dados[2]);
+                    paladinsList.add(new Paladin(nome, level, skill));
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar os paladinos: " + e.getMessage());
+        }
+    }
+
+    // Exibir o knight atual no JLabel
+    private void exibirPaladin() {
+        if (!paladinsList.isEmpty()) {
+            Paladin currentPaladin = paladinsList.get(currentIndex);
+            jLabelPaladinSalvos.setText("Nome: " + currentPaladin.getNome()
+                    + " | Level: " + currentPaladin.getLevel()
+                    + " | Skill: " + currentPaladin.getSkill());
+        } else {
+            jLabelPaladinSalvos.setText("Nenhum Paladin salvo.");
+        }
+    }
+
+    private void atualizarArquivo() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("src/Personagens/paladins.txt"))) {
+            for (Paladin paladin : paladinsList) {
+                writer.println(paladin.getNome() + "," + paladin.getLevel() + "," + paladin.getSkill());
+            }
+            System.out.println("Arquivo paladins.txt atualizado com sucesso!");
+        } catch (IOException e) {
+            System.out.println("Erro ao atualizar o arquivo paladins.txt: " + e.getMessage());
+        }
     }
 
     /**
@@ -27,133 +99,321 @@ public class PaladinJanela extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTextFieldNomeKnight = new javax.swing.JTextField();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        jButtonSalvarPaladin = new javax.swing.JButton();
+        jButtonExcluirPaladin = new javax.swing.JButton();
+        jButtonAlterarPaladin = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jTextFieldNomePaladin = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextFieldLevelKnight = new javax.swing.JTextField();
+        jTextFieldLevelPaladin = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextPaneSkillKnight = new javax.swing.JTextPane();
-        jButtonSalvarKnight = new javax.swing.JButton();
-        jButtonExcluirKnight = new javax.swing.JButton();
-        jButtonAlterarKnight = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        jTextPaneSkillPaladin = new javax.swing.JTextPane();
+        jLabelPaladinSalvos = new javax.swing.JLabel();
+        jButtonPassarPaladin = new javax.swing.JButton();
+        jButtonPesquisarPaladin = new javax.swing.JButton();
+
+        jButton3.setText("jButton3");
+
+        jButton4.setText("jButton4");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
+        jButtonSalvarPaladin.setText("Salvar");
+        jButtonSalvarPaladin.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonSalvarPaladinMouseClicked(evt);
+            }
+        });
+        jButtonSalvarPaladin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSalvarPaladinActionPerformed(evt);
+            }
+        });
+
+        jButtonExcluirPaladin.setText("Excluir");
+        jButtonExcluirPaladin.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonExcluirPaladinMouseClicked(evt);
+            }
+        });
+
+        jButtonAlterarPaladin.setText("Alterar");
+        jButtonAlterarPaladin.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonAlterarPaladinMouseClicked(evt);
+            }
+        });
+        jButtonAlterarPaladin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAlterarPaladinActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setFont(new java.awt.Font("Yu Gothic Medium", 3, 12)); // NOI18N
+        jLabel1.setForeground(new java.awt.Color(255, 51, 255));
+        jLabel1.setText("Nome");
+
+        jTextFieldNomePaladin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldNomePaladinActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setFont(new java.awt.Font("Yu Gothic Medium", 3, 12)); // NOI18N
+        jLabel2.setForeground(new java.awt.Color(255, 51, 255));
         jLabel2.setText("Level");
 
+        jLabel3.setFont(new java.awt.Font("Yu Gothic Medium", 3, 12)); // NOI18N
+        jLabel3.setForeground(new java.awt.Color(255, 51, 255));
         jLabel3.setText("Skill");
 
-        jTextFieldLevelKnight.addActionListener(new java.awt.event.ActionListener() {
+        jTextFieldLevelPaladin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldLevelKnightActionPerformed(evt);
+                jTextFieldLevelPaladinActionPerformed(evt);
             }
         });
 
-        jScrollPane1.setViewportView(jTextPaneSkillKnight);
+        jScrollPane1.setViewportView(jTextPaneSkillPaladin);
 
-        jButtonSalvarKnight.setText("Salvar");
-        jButtonSalvarKnight.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabelPaladinSalvos.setFont(new java.awt.Font("Segoe UI Historic", 3, 14)); // NOI18N
+        jLabelPaladinSalvos.setForeground(new java.awt.Color(0, 51, 255));
+
+        jButtonPassarPaladin.setText("Atualizar ou >>>");
+        jButtonPassarPaladin.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButtonSalvarKnightMouseClicked(evt);
+                jButtonPassarPaladinMouseClicked(evt);
             }
         });
-        jButtonSalvarKnight.addActionListener(new java.awt.event.ActionListener() {
+        jButtonPassarPaladin.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSalvarKnightActionPerformed(evt);
+                jButtonPassarPaladinActionPerformed(evt);
             }
         });
 
-        jButtonExcluirKnight.setText("Excluir");
-
-        jButtonAlterarKnight.setText("Alterar");
-        jButtonAlterarKnight.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonAlterarKnightActionPerformed(evt);
+        jButtonPesquisarPaladin.setText("Pesquisar");
+        jButtonPesquisarPaladin.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonPesquisarPaladinMouseClicked(evt);
             }
         });
-
-        jLabel1.setText("Nome");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(29, 29, 29)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel1))
-                        .addGap(51, 51, 51)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextFieldNomeKnight, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
-                            .addComponent(jTextFieldLevelKnight)
-                            .addComponent(jScrollPane1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonSalvarKnight)
-                        .addGap(74, 74, 74)
-                        .addComponent(jButtonExcluirKnight)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
-                        .addComponent(jButtonAlterarKnight)))
-                .addGap(29, 29, 29))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(29, 29, 29)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                .addComponent(jLabel3, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(jLabel1, javax.swing.GroupLayout.PREFERRED_SIZE, 47, javax.swing.GroupLayout.PREFERRED_SIZE))
+                            .addGap(39, 39, 39)
+                            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                .addComponent(jTextFieldNomePaladin, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
+                                .addComponent(jTextFieldLevelPaladin)
+                                .addComponent(jScrollPane1))
+                            .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                            .addComponent(jButtonPesquisarPaladin))
+                        .addGroup(layout.createSequentialGroup()
+                            .addGap(123, 123, 123)
+                            .addComponent(jLabelPaladinSalvos, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addGroup(javax.swing.GroupLayout.Alignment.LEADING, layout.createSequentialGroup()
+                        .addGap(27, 27, 27)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButtonPassarPaladin)
+                                .addGap(0, 0, Short.MAX_VALUE))
+                            .addGroup(layout.createSequentialGroup()
+                                .addComponent(jButtonSalvarPaladin)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(jButtonExcluirPaladin)
+                                .addGap(76, 76, 76)
+                                .addComponent(jButtonAlterarPaladin)))))
+                .addContainerGap(26, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(48, 48, 48)
+                .addGap(31, 31, 31)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextFieldNomeKnight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextFieldNomePaladin, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonPesquisarPaladin))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextFieldLevelKnight, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(21, 21, 21)
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jTextFieldLevelPaladin, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(19, 19, 19)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addComponent(jLabel3)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 72, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButtonPassarPaladin, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 34, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabelPaladinSalvos, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 28, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonSalvarKnight)
-                    .addComponent(jButtonExcluirKnight)
-                    .addComponent(jButtonAlterarKnight))
-                .addGap(48, 48, 48))
+                    .addComponent(jButtonAlterarPaladin)
+                    .addComponent(jButtonExcluirPaladin)
+                    .addComponent(jButtonSalvarPaladin))
+                .addGap(24, 24, 24))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextFieldLevelKnightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldLevelKnightActionPerformed
+    private void jTextFieldLevelPaladinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldLevelPaladinActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldLevelKnightActionPerformed
+    }//GEN-LAST:event_jTextFieldLevelPaladinActionPerformed
 
-    private void jButtonSalvarKnightMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSalvarKnightMouseClicked
+    private void jButtonAlterarPaladinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAlterarPaladinActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonAlterarPaladinActionPerformed
+
+    private void jButtonSalvarPaladinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSalvarPaladinMouseClicked
         // Pega os dados dos campos
-        String nome = jTextFieldNomeKnight.getText();
-        int level = Integer.parseInt(jTextFieldLevelKnight.getText());
-        int skill = Integer.parseInt(jTextPaneSkillKnight.getText());
+        String nome = jTextFieldNomePaladin.getText();
+        int level = Integer.parseInt(jTextFieldLevelPaladin.getText());
+        int skill = Integer.parseInt(jTextPaneSkillPaladin.getText());
 
         // Cria o objeto Knight
-        Knight knight = new Knight(nome, level, skill);
+        Paladin paladin = new Paladin(nome, level, skill);
 
         // Salva usando o controller
-        controller.salvar(knight);
+        controller.salvar(paladin);
 
         // Mensagem de sucesso
-        JOptionPane.showMessageDialog(this, "Knight salvo com sucesso!");
-    }//GEN-LAST:event_jButtonSalvarKnightMouseClicked
+        JOptionPane.showMessageDialog(this, "Paladin salvo com sucesso!");
+        carregarPaladins();
+    }//GEN-LAST:event_jButtonSalvarPaladinMouseClicked
 
-    private void jButtonSalvarKnightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSalvarKnightActionPerformed
+    private void jButtonSalvarPaladinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSalvarPaladinActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButtonSalvarKnightActionPerformed
+    }//GEN-LAST:event_jButtonSalvarPaladinActionPerformed
 
-    private void jButtonAlterarKnightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAlterarKnightActionPerformed
+    private void jButtonPassarPaladinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPassarPaladinMouseClicked
+        if (!paladinsList.isEmpty()) {
+            // Incrementar o índice para passar para o próximo pala
+            currentIndex = (currentIndex + 1) % paladinsList.size(); // Volta ao primeiro pala se ultrapassar o tamanho da lista
+            exibirPaladin(); // Atualiza a exibição do knight
+        }
+    }//GEN-LAST:event_jButtonPassarPaladinMouseClicked
+
+    private void jButtonPassarPaladinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPassarPaladinActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButtonAlterarKnightActionPerformed
+    }//GEN-LAST:event_jButtonPassarPaladinActionPerformed
+
+    private void jButtonExcluirPaladinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonExcluirPaladinMouseClicked
+        if (!paladinsList.isEmpty()) {
+            // Excluir o palat atual da lista
+            paladinsList.remove(currentIndex);
+
+            // Se a lista não estiver vazia após a exclusão, ajusta o índice
+            if (currentIndex >= paladinsList.size()) {
+                currentIndex = paladinsList.size() - 1; // Se o índice for maior que o tamanho, vai para o último knight
+            }
+
+            // Atualiza a exibição
+            exibirPaladin();
+
+            // Atualizar o arquivo Paladin.txt
+            atualizarArquivo();
+        } else {
+            // Se não houver Paladin, exibe uma mensagem
+            JOptionPane.showMessageDialog(this, "Não há Paladins para excluir.");
+        }
+
+    }//GEN-LAST:event_jButtonExcluirPaladinMouseClicked
+
+    private void jButtonAlterarPaladinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAlterarPaladinMouseClicked
+        if (paladinsList.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Não há Paladin para alterar.");
+            return;
+        }
+
+        Paladin currentPaladin = paladinsList.get(currentIndex);
+
+        // Cria os campos e preenche com os dados atuais
+        JTextField nomeField = new JTextField(currentPaladin.getNome());
+        JTextField levelField = new JTextField(String.valueOf(currentPaladin.getLevel()));
+        JTextField skillField = new JTextField(String.valueOf(currentPaladin.getSkill()));
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Nome:"));
+        panel.add(nomeField);
+        panel.add(new JLabel("Level:"));
+        panel.add(levelField);
+        panel.add(new JLabel("Skill:"));
+        panel.add(skillField);
+
+        int resultado = JOptionPane.showConfirmDialog(this, panel, "Editar Paladin",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (resultado == JOptionPane.OK_OPTION) {
+            try {
+                String novoNome = nomeField.getText().trim();
+                int novoLevel = Integer.parseInt(levelField.getText().trim());
+                int novoSkill = Integer.parseInt(skillField.getText().trim());
+
+                // Atualiza os dados do knight
+                currentPaladin.setNome(novoNome);
+                currentPaladin.setLevel(novoLevel);
+                currentPaladin.setSkill(novoSkill);
+
+                // Atualiza exibição e arquivo
+                exibirPaladin();
+                atualizarArquivo();
+
+                JOptionPane.showMessageDialog(this, "Paladin alterado com sucesso!");
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Level e Skill devem ser números inteiros.");
+            }
+        }
+    }//GEN-LAST:event_jButtonAlterarPaladinMouseClicked
+
+    private void jTextFieldNomePaladinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldNomePaladinActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldNomePaladinActionPerformed
+
+    private void jButtonPesquisarPaladinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPesquisarPaladinMouseClicked
+        String nomePesquisa = jTextFieldNomePaladin.getText().trim();
+        if (nomePesquisa.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, informe o nome para pesquisar.");
+            return;
+        }
+
+        boolean encontrado = false;
+
+        for (int i = 0; i < paladinsList.size(); i++) {
+            Paladin k = paladinsList.get(i);
+            if (k.getNome().equalsIgnoreCase(nomePesquisa)) {
+                // Atualiza campos com o Paladin encontrado
+                jTextFieldNomePaladin.setText(k.getNome());
+                jTextFieldLevelPaladin.setText(String.valueOf(k.getLevel()));
+                jTextPaneSkillPaladin.setText(String.valueOf(k.getSkill()));
+
+                // Atualiza índice atual
+                currentIndex = i;
+
+                // Atualiza label
+                exibirPaladin();
+
+                encontrado = true;
+                break;
+            }
+        }
+
+        if (!encontrado) {
+            JOptionPane.showMessageDialog(this, "Paladin com nome '" + nomePesquisa + "' não encontrado.");
+        }
+
+    }//GEN-LAST:event_jButtonPesquisarPaladinMouseClicked
 
     /**
      * @param args the command line arguments
@@ -182,6 +442,8 @@ public class PaladinJanela extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -192,15 +454,20 @@ public class PaladinJanela extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButtonAlterarKnight;
-    private javax.swing.JButton jButtonExcluirKnight;
-    private javax.swing.JButton jButtonSalvarKnight;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButtonAlterarPaladin;
+    private javax.swing.JButton jButtonExcluirPaladin;
+    private javax.swing.JButton jButtonPassarPaladin;
+    private javax.swing.JButton jButtonPesquisarPaladin;
+    private javax.swing.JButton jButtonSalvarPaladin;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabelPaladinSalvos;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextFieldLevelKnight;
-    private javax.swing.JTextField jTextFieldNomeKnight;
-    private javax.swing.JTextPane jTextPaneSkillKnight;
+    private javax.swing.JTextField jTextFieldLevelPaladin;
+    private javax.swing.JTextField jTextFieldNomePaladin;
+    private javax.swing.JTextPane jTextPaneSkillPaladin;
     // End of variables declaration//GEN-END:variables
 }

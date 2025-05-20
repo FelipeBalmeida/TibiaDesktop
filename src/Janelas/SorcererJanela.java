@@ -4,18 +4,91 @@
  */
 package Janelas;
 
-/**
- *
- * @author felip
- */
+import Controller.SorcererController;
+import Model.Sorcerer;
+import javax.swing.*;
+import java.io.*;
+import java.util.*;
+import java.util.List;
+import java.util.ArrayList;
+import java.awt.GridLayout;
+import javax.swing.ImageIcon;
+import java.awt.Image;
+
+
+
 public class SorcererJanela extends javax.swing.JFrame {
 
+    private SorcererController controller = new SorcererController();
+    private List<Sorcerer> sorcerersList = new ArrayList<>();
+    private int currentIndex = 0;
+    private JLabel backgroundLabel;
     /**
-     * Creates new form Sorcerer
+     * Creates new form Knight
      */
     public SorcererJanela() {
         initComponents();
+        carregarSorcerers(); // Carregar os Sorcererd ao iniciar a janela
+        exibirSorcerer(); // Exibir o primeiro Sorcerer
         setLocationRelativeTo(null);
+
+        ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/imagens/3.png"));
+        Image img = backgroundImage.getImage().getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_SMOOTH);
+        backgroundLabel = new JLabel(new ImageIcon(img));
+
+        backgroundLabel.setBounds(0, 0, this.getWidth(), this.getHeight());
+
+        // Usar layout nulo para posicionar o JLabel no fundo
+        getLayeredPane().setLayout(null);
+        getLayeredPane().add(backgroundLabel, new Integer(Integer.MIN_VALUE));
+
+        // Deixar o painel principal transparente para o fundo aparecer
+        ((JPanel) this.getContentPane()).setOpaque(false);
+
+        // Ajustar tamanho e outras configurações da janela (se quiser)
+        setSize(500, 500);
+        setLocationRelativeTo(null);
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+    }
+
+    private void carregarSorcerers() {
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/Personagens/sorcerers.txt"))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] dados = line.split(",");
+                if (dados.length == 3) {
+                    String nome = dados[0];
+                    int level = Integer.parseInt(dados[1]);
+                    int magicLevel = Integer.parseInt(dados[2]);
+                    sorcerersList.add(new Sorcerer(nome, level, magicLevel));
+                }
+            }
+        } catch (IOException e) {
+            System.out.println("Erro ao carregar os Sorcerers: " + e.getMessage());
+        }
+    }
+
+    // Exibir o Sorcerer atual no JLabel
+    private void exibirSorcerer() {
+        if (!sorcerersList.isEmpty()) {
+            Sorcerer currentSorcerer = sorcerersList.get(currentIndex);
+            jLabelSorcererSalvos.setText("Nome: " + currentSorcerer.getNome()
+                    + " | Level: " + currentSorcerer.getLevel()
+                    + " | Skill: " + currentSorcerer.getMagicLevel());
+        } else {
+            jLabelSorcererSalvos.setText("Nenhum Sorcerer salvo.");
+        }
+    }
+
+    private void atualizarArquivo() {
+        try (PrintWriter writer = new PrintWriter(new FileWriter("src/Personagens/sorcerers.txt"))) {
+            for (Sorcerer sorcerer : sorcerersList) {
+                writer.println(sorcerer.getNome() + "," + sorcerer.getLevel() + "," + sorcerer.getMagicLevel());
+            }
+            System.out.println("Arquivo Sorcerers.txt atualizado com sucesso!");
+        } catch (IOException e) {
+            System.out.println("Erro ao atualizar o arquivo Druids.txt: " + e.getMessage());
+        }
     }
 
     /**
@@ -27,53 +100,102 @@ public class SorcererJanela extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jTextFieldNomeKnight = new javax.swing.JTextField();
+        jButton3 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        jButtonSalvarSorcerer = new javax.swing.JButton();
+        jButtonExcluirSorcerer = new javax.swing.JButton();
+        jButtonAlterarSorcerer = new javax.swing.JButton();
+        jLabel1 = new javax.swing.JLabel();
+        jTextFieldNomeSorcerer = new javax.swing.JTextField();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jTextFieldLevelKnight = new javax.swing.JTextField();
+        jTextFieldLevelSorcerer = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextPaneSkillKnight = new javax.swing.JTextPane();
-        jButtonSalvarKnight = new javax.swing.JButton();
-        jButtonExcluirKnight = new javax.swing.JButton();
-        jButtonAlterarKnight = new javax.swing.JButton();
-        jLabel1 = new javax.swing.JLabel();
+        jTextPaneMagicLevelSorcerer = new javax.swing.JTextPane();
+        jLabelSorcererSalvos = new javax.swing.JLabel();
+        jButtonPassarSorcerer = new javax.swing.JButton();
+        jButtonPesquisarSorcerer = new javax.swing.JButton();
+
+        jButton3.setText("jButton3");
+
+        jButton4.setText("jButton4");
 
         setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 
+        jButtonSalvarSorcerer.setText("Salvar");
+        jButtonSalvarSorcerer.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonSalvarSorcererMouseClicked(evt);
+            }
+        });
+        jButtonSalvarSorcerer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonSalvarSorcererActionPerformed(evt);
+            }
+        });
+
+        jButtonExcluirSorcerer.setText("Excluir");
+        jButtonExcluirSorcerer.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonExcluirSorcererMouseClicked(evt);
+            }
+        });
+
+        jButtonAlterarSorcerer.setText("Alterar");
+        jButtonAlterarSorcerer.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonAlterarSorcererMouseClicked(evt);
+            }
+        });
+        jButtonAlterarSorcerer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonAlterarSorcererActionPerformed(evt);
+            }
+        });
+
+        jLabel1.setForeground(new java.awt.Color(255, 51, 255));
+        jLabel1.setText("Nome");
+
+        jTextFieldNomeSorcerer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jTextFieldNomeSorcererActionPerformed(evt);
+            }
+        });
+
+        jLabel2.setForeground(new java.awt.Color(255, 51, 255));
         jLabel2.setText("Level");
 
-        jLabel3.setText("Skill");
+        jLabel3.setForeground(new java.awt.Color(255, 51, 255));
+        jLabel3.setText("MagicLvl");
 
-        jTextFieldLevelKnight.addActionListener(new java.awt.event.ActionListener() {
+        jTextFieldLevelSorcerer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jTextFieldLevelKnightActionPerformed(evt);
+                jTextFieldLevelSorcererActionPerformed(evt);
             }
         });
 
-        jScrollPane1.setViewportView(jTextPaneSkillKnight);
+        jScrollPane1.setViewportView(jTextPaneMagicLevelSorcerer);
 
-        jButtonSalvarKnight.setText("Salvar");
-        jButtonSalvarKnight.addMouseListener(new java.awt.event.MouseAdapter() {
+        jLabelSorcererSalvos.setForeground(new java.awt.Color(255, 51, 255));
+
+        jButtonPassarSorcerer.setText("Atualizar ou >>>");
+        jButtonPassarSorcerer.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                jButtonSalvarKnightMouseClicked(evt);
+                jButtonPassarSorcererMouseClicked(evt);
             }
         });
-        jButtonSalvarKnight.addActionListener(new java.awt.event.ActionListener() {
+        jButtonPassarSorcerer.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonSalvarKnightActionPerformed(evt);
+                jButtonPassarSorcererActionPerformed(evt);
             }
         });
 
-        jButtonExcluirKnight.setText("Excluir");
-
-        jButtonAlterarKnight.setText("Alterar");
-        jButtonAlterarKnight.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButtonAlterarKnightActionPerformed(evt);
+        jButtonPesquisarSorcerer.setText("Pesquisar");
+        jButtonPesquisarSorcerer.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButtonPesquisarSorcererMouseClicked(evt);
             }
         });
-
-        jLabel1.setText("Nome");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -84,76 +206,207 @@ public class SorcererJanela extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                            .addComponent(jLabel3)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel1))
-                        .addGap(51, 51, 51)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jTextFieldNomeKnight, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
-                            .addComponent(jTextFieldLevelKnight)
-                            .addComponent(jScrollPane1))
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 77, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addGroup(layout.createSequentialGroup()
-                        .addComponent(jButtonSalvarKnight)
+                            .addComponent(jLabelSorcererSalvos, javax.swing.GroupLayout.PREFERRED_SIZE, 253, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                                    .addComponent(jLabel3)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel1))
+                                .addGap(51, 51, 51)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                    .addComponent(jTextFieldNomeSorcerer, javax.swing.GroupLayout.DEFAULT_SIZE, 181, Short.MAX_VALUE)
+                                    .addComponent(jTextFieldLevelSorcerer)
+                                    .addComponent(jScrollPane1))))
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                        .addComponent(jButtonPesquisarSorcerer)
+                        .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
+                        .addComponent(jButtonSalvarSorcerer)
                         .addGap(74, 74, 74)
-                        .addComponent(jButtonExcluirKnight)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 52, Short.MAX_VALUE)
-                        .addComponent(jButtonAlterarKnight)))
-                .addGap(29, 29, 29))
+                        .addComponent(jButtonExcluirSorcerer)
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 11, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jButtonAlterarSorcerer)
+                            .addComponent(jButtonPassarSorcerer, javax.swing.GroupLayout.PREFERRED_SIZE, 129, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(20, 20, 20))))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addGap(48, 48, 48)
+                .addGap(31, 31, 31)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jTextFieldNomeKnight, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextFieldNomeSorcerer, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jButtonPesquisarSorcerer))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jTextFieldLevelKnight, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jTextFieldLevelSorcerer, javax.swing.GroupLayout.PREFERRED_SIZE, 22, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(21, 21, 21)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jLabel3)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 76, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jButtonPassarSorcerer)
+                    .addComponent(jLabelSorcererSalvos))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 34, Short.MAX_VALUE)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jButtonSalvarKnight)
-                    .addComponent(jButtonExcluirKnight)
-                    .addComponent(jButtonAlterarKnight))
-                .addGap(48, 48, 48))
+                    .addComponent(jButtonSalvarSorcerer)
+                    .addComponent(jButtonExcluirSorcerer)
+                    .addComponent(jButtonAlterarSorcerer))
+                .addGap(65, 65, 65))
         );
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
-    private void jTextFieldLevelKnightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldLevelKnightActionPerformed
+    private void jTextFieldLevelSorcererActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldLevelSorcererActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jTextFieldLevelKnightActionPerformed
+    }//GEN-LAST:event_jTextFieldLevelSorcererActionPerformed
 
-    private void jButtonSalvarKnightMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSalvarKnightMouseClicked
+    private void jButtonAlterarSorcererActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAlterarSorcererActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonAlterarSorcererActionPerformed
+
+    private void jButtonSalvarSorcererMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSalvarSorcererMouseClicked
         // Pega os dados dos campos
-        String nome = jTextFieldNomeKnight.getText();
-        int level = Integer.parseInt(jTextFieldLevelKnight.getText());
-        int skill = Integer.parseInt(jTextPaneSkillKnight.getText());
+        String nome = jTextFieldNomeSorcerer.getText();
+        int level = Integer.parseInt(jTextFieldLevelSorcerer.getText());
+        int magicLevel = Integer.parseInt(jTextPaneMagicLevelSorcerer.getText());
 
-        // Cria o objeto Knight
-        Knight knight = new Knight(nome, level, skill);
+        // Cria o objeto Druid
+        Sorcerer sorcerer = new Sorcerer(nome, level, magicLevel);
 
         // Salva usando o controller
-        controller.salvar(knight);
+        controller.salvar(sorcerer);
 
         // Mensagem de sucesso
-        JOptionPane.showMessageDialog(this, "Knight salvo com sucesso!");
-    }//GEN-LAST:event_jButtonSalvarKnightMouseClicked
+        JOptionPane.showMessageDialog(this, "Sorcerer salvo com sucesso!");
+        carregarSorcerers();
+    }//GEN-LAST:event_jButtonSalvarSorcererMouseClicked
 
-    private void jButtonSalvarKnightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSalvarKnightActionPerformed
+    private void jButtonSalvarSorcererActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSalvarSorcererActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButtonSalvarKnightActionPerformed
+    }//GEN-LAST:event_jButtonSalvarSorcererActionPerformed
 
-    private void jButtonAlterarKnightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonAlterarKnightActionPerformed
+    private void jButtonPassarSorcererMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPassarSorcererMouseClicked
+        if (!sorcerersList.isEmpty()) {
+            // Incrementar o índice para passar para o próximo kDruid
+            currentIndex = (currentIndex + 1) % sorcerersList.size(); // Volta ao primeiro kDruidt se ultrapassar o tamanho da lista
+            exibirSorcerer(); // Atualiza a exibição do Druid
+        }
+    }//GEN-LAST:event_jButtonPassarSorcererMouseClicked
+
+    private void jButtonPassarSorcererActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPassarSorcererActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButtonAlterarKnightActionPerformed
+    }//GEN-LAST:event_jButtonPassarSorcererActionPerformed
+
+    private void jButtonExcluirSorcererMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonExcluirSorcererMouseClicked
+        if (!sorcerersList.isEmpty()) {
+            // Excluir o knight atual da lista
+            sorcerersList.remove(currentIndex);
+
+            // Se a lista não estiver vazia após a exclusão, ajusta o índice
+            if (currentIndex >= sorcerersList.size()) {
+                currentIndex = sorcerersList.size() - 1; // Se o índice for maior que o tamanho, vai para o último knight
+            }
+
+            // Atualiza a exibição
+            exibirSorcerer();
+
+            // Atualizar o arquivo knights.txt
+            atualizarArquivo();
+        } else {
+            // Se não houver knights, exibe uma mensagem
+            JOptionPane.showMessageDialog(this, "Não há Sorcerer para excluir.");
+        }
+
+    }//GEN-LAST:event_jButtonExcluirSorcererMouseClicked
+
+    private void jButtonAlterarSorcererMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAlterarSorcererMouseClicked
+        if (sorcerersList.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Não há Sorcerer para alterar.");
+            return;
+        }
+
+        Sorcerer currentSorcerer = sorcerersList.get(currentIndex);
+
+        // Cria os campos e preenche com os dados atuais
+        JTextField nomeField = new JTextField(currentSorcerer.getNome());
+        JTextField levelField = new JTextField(String.valueOf(currentSorcerer.getLevel()));
+        JTextField magicLevelField = new JTextField(String.valueOf(currentSorcerer.getMagicLevel()));
+
+        JPanel panel = new JPanel(new GridLayout(0, 1));
+        panel.add(new JLabel("Nome:"));
+        panel.add(nomeField);
+        panel.add(new JLabel("Level:"));
+        panel.add(levelField);
+        panel.add(new JLabel("Magic Level:"));
+        panel.add(magicLevelField);
+
+        int resultado = JOptionPane.showConfirmDialog(this, panel, "Editar Sorcerer",
+                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+
+        if (resultado == JOptionPane.OK_OPTION) {
+            try {
+                String novoNome = nomeField.getText().trim();
+                int novoLevel = Integer.parseInt(levelField.getText().trim());
+                int novoMagicLevel = Integer.parseInt(magicLevelField.getText().trim());
+
+                // Atualiza os dados do knight
+                currentSorcerer.setNome(novoNome);
+                currentSorcerer.setLevel(novoLevel);
+                currentSorcerer.setMagicLevel(novoMagicLevel);
+
+                // Atualiza exibição e arquivo
+                exibirSorcerer();
+                atualizarArquivo();
+
+                JOptionPane.showMessageDialog(this, "Sorcerer alterado com sucesso!");
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Level e Ml devem ser números inteiros.");
+            }
+        }
+    }//GEN-LAST:event_jButtonAlterarSorcererMouseClicked
+
+    private void jTextFieldNomeSorcererActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextFieldNomeSorcererActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jTextFieldNomeSorcererActionPerformed
+
+    private void jButtonPesquisarSorcererMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPesquisarSorcererMouseClicked
+        String nomePesquisa = jTextFieldNomeSorcerer.getText().trim();
+        if (nomePesquisa.isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Por favor, informe o nome para pesquisar.");
+            return;
+        }
+
+        boolean encontrado = false;
+
+        for (int i = 0; i < sorcerersList.size(); i++) {
+            Sorcerer k = sorcerersList.get(i);
+            if (k.getNome().equalsIgnoreCase(nomePesquisa)) {
+                // Atualiza campos com o Druid encontrado
+                jTextFieldNomeSorcerer.setText(k.getNome());
+                jTextFieldLevelSorcerer.setText(String.valueOf(k.getLevel()));
+                jTextPaneMagicLevelSorcerer.setText(String.valueOf(k.getMagicLevel()));
+
+                // Atualiza índice atual
+                currentIndex = i;
+
+                // Atualiza label
+                exibirSorcerer();
+
+                encontrado = true;
+                break;
+            }
+        }
+
+        if (!encontrado) {
+            JOptionPane.showMessageDialog(this, "Sorcerer com nome '" + nomePesquisa + "' não encontrado.");
+        }
+
+    }//GEN-LAST:event_jButtonPesquisarSorcererMouseClicked
 
     /**
      * @param args the command line arguments
@@ -182,6 +435,12 @@ public class SorcererJanela extends javax.swing.JFrame {
         }
         //</editor-fold>
         //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
+        //</editor-fold>
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {
@@ -192,15 +451,20 @@ public class SorcererJanela extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButtonAlterarKnight;
-    private javax.swing.JButton jButtonExcluirKnight;
-    private javax.swing.JButton jButtonSalvarKnight;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButtonAlterarSorcerer;
+    private javax.swing.JButton jButtonExcluirSorcerer;
+    private javax.swing.JButton jButtonPassarSorcerer;
+    private javax.swing.JButton jButtonPesquisarSorcerer;
+    private javax.swing.JButton jButtonSalvarSorcerer;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
+    private javax.swing.JLabel jLabelSorcererSalvos;
     private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JTextField jTextFieldLevelKnight;
-    private javax.swing.JTextField jTextFieldNomeKnight;
-    private javax.swing.JTextPane jTextPaneSkillKnight;
+    private javax.swing.JTextField jTextFieldLevelSorcerer;
+    private javax.swing.JTextField jTextFieldNomeSorcerer;
+    private javax.swing.JTextPane jTextPaneMagicLevelSorcerer;
     // End of variables declaration//GEN-END:variables
 }
