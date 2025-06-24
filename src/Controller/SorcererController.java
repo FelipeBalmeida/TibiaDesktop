@@ -1,55 +1,97 @@
 package Controller;
 
 import Model.Sorcerer;
+
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class SorcererController {
 
-    private List<Sorcerer> sorcerers = new ArrayList<>();
+    private List<Sorcerer> sorcerers;
+    private final String CAMINHO_ARQUIVO = "src/Personagens/sorcerers.dat";
 
-    // Método para salvar Sorcerer
-    public void salvar(Sorcerer sorcerer) {
-        try {
-            // Caminho correto para dentro da pasta src/Personagens
-            File directory = new File("src/Personagens");
-            if (!directory.exists()) {
-                directory.mkdirs(); // Cria a pasta Personagens dentro de src, caso não exista
-            }
+    public SorcererController() {
+        this.sorcerers = carregarSorcerers();
+    }
 
-            // Agora salva o arquivo sorcerers.txt dentro de src/Personagens
-            PrintWriter writer = new PrintWriter(new FileWriter("src/Personagens/sorcerers.txt", true));
-            writer.println(sorcerer.getNome() + "," + sorcerer.getLevel() + "," + sorcerer.getMagicLevel());
-            sorcerers.add(sorcerer);
-            writer.close();
-            System.out.println("Sorcerer salvo com sucesso!");
+    private void salvarTodosSorcerers() {
+        File directory = new File("src/Personagens");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        try (FileOutputStream fileOut = new FileOutputStream(CAMINHO_ARQUIVO);
+             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
+
+            objectOut.writeObject(sorcerers);
+
         } catch (IOException e) {
-            System.out.println("Erro ao salvar Sorcerer: " + e.getMessage());
+            System.out.println("Erro ao salvar todos os Sorcerers: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    // Método para excluir Sorcerer
+    private List<Sorcerer> carregarSorcerers() {
+        File file = new File(CAMINHO_ARQUIVO);
+        if (!file.exists()) {
+            return new ArrayList<>();
+        }
+
+        try (FileInputStream fileIn = new FileInputStream(CAMINHO_ARQUIVO);
+             ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
+
+            List<Sorcerer> loadedSorcerers = (List<Sorcerer>) objectIn.readObject();
+            return loadedSorcerers;
+
+        } catch (FileNotFoundException e) {
+            return new ArrayList<>();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    public void salvar(Sorcerer sorcerer) {
+        this.sorcerers.add(sorcerer);
+        salvarTodosSorcerers();
+    }
+
     public void excluir(String nome) {
-        for (Sorcerer sorcerer : sorcerers) {
-            if (sorcerer.getNome().equals(nome)) {
-                sorcerers.remove(sorcerer);
-                System.out.println("Sorcerer " + nome + " excluído com sucesso!");
-                return;
-            }
+        boolean removido = sorcerers.removeIf(sorcerer -> sorcerer.getNome().equals(nome));
+        if (removido) {
+            salvarTodosSorcerers();
         }
-        System.out.println("Sorcerer não encontrado.");
     }
 
-    // Método para alterar dados de Sorcerer
     public void alterar(String nome, int level, int magicLevel) {
+        boolean alterado = false;
         for (Sorcerer sorcerer : sorcerers) {
             if (sorcerer.getNome().equals(nome)) {
                 sorcerer.setLevel(level);
                 sorcerer.setMagicLevel(magicLevel);
-                System.out.println("Dados do Sorcerer " + nome + " alterados com sucesso!");
-                return;
+                alterado = true;
+                break;
             }
         }
-        System.out.println("Sorcerer não encontrado.");
+        if (alterado) {
+            salvarTodosSorcerers();
+        }
+    }
+
+    public List<Sorcerer> getTodosSorcerers() {
+        return new ArrayList<>(this.sorcerers);
+    }
+
+    public Sorcerer buscarPorNome(String nome) {
+        for (Sorcerer sorcerer : sorcerers) {
+            if (sorcerer.getNome().equals(nome)) {
+                return sorcerer;
+            }
+        }
+        return null;
     }
 }

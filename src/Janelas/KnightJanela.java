@@ -15,78 +15,65 @@ import java.awt.GridLayout;
 import javax.swing.ImageIcon;
 import java.awt.Image;
 
-
 public class KnightJanela extends javax.swing.JFrame {
 
     private KnightController controller = new KnightController();
-    private List<Knight> knightsList = new ArrayList<>();
+    private List<Knight> knightsList; // A lista será inicializada e preenchida pelo controller
     private int currentIndex = 0;
     private JLabel backgroundLabel;
+
     /**
-     * Creates new form Knight
+     * Creates new form KnightJanela
      */
     public KnightJanela() {
         initComponents();
         carregarKnights(); // Carregar os knights ao iniciar a janela
         exibirKnight(); // Exibir o primeiro Knight
         setLocationRelativeTo(null);
-        
+
         ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/imagens/1.png"));
         Image img = backgroundImage.getImage().getScaledInstance(this.getWidth(), this.getHeight(), Image.SCALE_SMOOTH);
         backgroundLabel = new JLabel(new ImageIcon(img));
 
         backgroundLabel.setBounds(0, 0, this.getWidth(), this.getHeight());
 
-        // Usar layout nulo para posicionar o JLabel no fundo
         getLayeredPane().setLayout(null);
         getLayeredPane().add(backgroundLabel, new Integer(Integer.MIN_VALUE));
 
-        // Deixar o painel principal transparente para o fundo aparecer
         ((JPanel) this.getContentPane()).setOpaque(false);
 
-        // Ajustar tamanho e outras configurações da janela (se quiser)
         setSize(500, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     private void carregarKnights() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("src/Personagens/knights.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] dados = line.split(",");
-                if (dados.length == 3) {
-                    String nome = dados[0];
-                    int level = Integer.parseInt(dados[1]);
-                    int skill = Integer.parseInt(dados[2]);
-                    knightsList.add(new Knight(nome, level, skill));
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Erro ao carregar os knights: " + e.getMessage());
+        this.knightsList = controller.getTodosKnights(); // Obtém a lista do Controller
+
+        if (knightsList.isEmpty()) {
+            currentIndex = 0;
+        } else if (currentIndex >= knightsList.size()) {
+            currentIndex = knightsList.size() - 1;
         }
     }
 
-    // Exibir o knight atual no JLabel
     private void exibirKnight() {
-        if (!knightsList.isEmpty()) {
+        if (!knightsList.isEmpty() && currentIndex >= 0 && currentIndex < knightsList.size()) {
             Knight currentKnight = knightsList.get(currentIndex);
+            // Preencher os JTextFields com os dados do Knight atual
+            jTextFieldNomeKnight.setText(currentKnight.getNome()); // Assumindo jTextFieldNomeKnight
+            jTextFieldLevelKnight.setText(String.valueOf(currentKnight.getLevel())); // Assumindo jTextFieldLevelKnight
+            jTextFieldSkillKnight.setText(String.valueOf(currentKnight.getSkill())); // Assumindo jTextFieldSkillKnight
+
             jLabelKnightSalvos.setText("Nome: " + currentKnight.getNome()
                     + " | Level: " + currentKnight.getLevel()
                     + " | Skill: " + currentKnight.getSkill());
         } else {
+            // Limpa os campos se não houver Knight para exibir
+            jTextFieldNomeKnight.setText("");
+            jTextFieldLevelKnight.setText("");
+            jTextFieldSkillKnight.setText("");
             jLabelKnightSalvos.setText("Nenhum Knight salvo.");
-        }
-    }
-
-    private void atualizarArquivo() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("src/Personagens/knights.txt"))) {
-            for (Knight knight : knightsList) {
-                writer.println(knight.getNome() + "," + knight.getLevel() + "," + knight.getSkill());
-            }
-            System.out.println("Arquivo knights.txt atualizado com sucesso!");
-        } catch (IOException e) {
-            System.out.println("Erro ao atualizar o arquivo knights.txt: " + e.getMessage());
         }
     }
 
@@ -110,7 +97,7 @@ public class KnightJanela extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jTextFieldLevelKnight = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextPaneSkillKnight = new javax.swing.JTextPane();
+        jTextFieldSkillKnight = new javax.swing.JTextPane();
         jLabelKnightSalvos = new javax.swing.JLabel();
         jButtonPassarKnight = new javax.swing.JButton();
         jButtonPesquisarKnight = new javax.swing.JButton();
@@ -173,7 +160,7 @@ public class KnightJanela extends javax.swing.JFrame {
             }
         });
 
-        jScrollPane1.setViewportView(jTextPaneSkillKnight);
+        jScrollPane1.setViewportView(jTextFieldSkillKnight);
 
         jLabelKnightSalvos.setFont(new java.awt.Font("Segoe UI", 3, 12)); // NOI18N
         jLabelKnightSalvos.setForeground(new java.awt.Color(51, 255, 51));
@@ -270,10 +257,24 @@ public class KnightJanela extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonAlterarKnightActionPerformed
 
     private void jButtonSalvarKnightMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSalvarKnightMouseClicked
-        // Pega os dados dos campos
+// Pega os dados dos campos e adiciona tratamento de erro
         String nome = jTextFieldNomeKnight.getText();
-        int level = Integer.parseInt(jTextFieldLevelKnight.getText());
-        int skill = Integer.parseInt(jTextPaneSkillKnight.getText());
+
+        int level = 0;
+        try {
+            level = Integer.parseInt(jTextFieldLevelKnight.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+            return; // Sai do método se houver erro
+        }
+
+        int skill = 0;
+        try {
+            skill = Integer.parseInt(jTextFieldSkillKnight.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Skill.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+            return; // Sai do método se houver erro
+        }
 
         // Cria o objeto Knight
         Knight knight = new Knight(nome, level, skill);
@@ -283,7 +284,11 @@ public class KnightJanela extends javax.swing.JFrame {
 
         // Mensagem de sucesso
         JOptionPane.showMessageDialog(this, "Knight salvo com sucesso!");
+
+        // Recarrega a lista para refletir a adição e exibe o novo Knight
         carregarKnights();
+        currentIndex = knightsList.size() - 1; // Vai para o último adicionado
+        exibirKnight();
     }//GEN-LAST:event_jButtonSalvarKnightMouseClicked
 
     private void jButtonSalvarKnightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSalvarKnightActionPerformed
@@ -292,9 +297,8 @@ public class KnightJanela extends javax.swing.JFrame {
 
     private void jButtonPassarKnightMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPassarKnightMouseClicked
         if (!knightsList.isEmpty()) {
-            // Incrementar o índice para passar para o próximo knight
-            currentIndex = (currentIndex + 1) % knightsList.size(); // Volta ao primeiro knight se ultrapassar o tamanho da lista
-            exibirKnight(); // Atualiza a exibição do knight
+            currentIndex = (currentIndex + 1) % knightsList.size();
+            exibirKnight();
         }
     }//GEN-LAST:event_jButtonPassarKnightMouseClicked
 
@@ -303,70 +307,57 @@ public class KnightJanela extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonPassarKnightActionPerformed
 
     private void jButtonExcluirKnightMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonExcluirKnightMouseClicked
-        if (!knightsList.isEmpty()) {
-            // Excluir o knight atual da lista
-            knightsList.remove(currentIndex);
-
-            // Se a lista não estiver vazia após a exclusão, ajusta o índice
-            if (currentIndex >= knightsList.size()) {
-                currentIndex = knightsList.size() - 1; // Se o índice for maior que o tamanho, vai para o último knight
+        if (!knightsList.isEmpty() && currentIndex >= 0 && currentIndex < knightsList.size()) {
+            String nomeParaExcluir = knightsList.get(currentIndex).getNome();
+            int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir o Knight " + nomeParaExcluir + "?", "Confirmar Exclusão", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                controller.excluir(nomeParaExcluir);
+                JOptionPane.showMessageDialog(this, "Knight " + nomeParaExcluir + " excluído com sucesso!");
+                carregarKnights(); // Recarrega a lista para refletir a exclusão
+                if (!knightsList.isEmpty()) {
+                    if (currentIndex >= knightsList.size()) {
+                        currentIndex = knightsList.size() - 1;
+                    }
+                    exibirKnight();
+                } else {
+                    exibirKnight(); // Exibe "Nenhum Knight salvo."
+                }
             }
-
-            // Atualiza a exibição
-            exibirKnight();
-
-            // Atualizar o arquivo knights.txt
-            atualizarArquivo();
         } else {
-            // Se não houver knights, exibe uma mensagem
-            JOptionPane.showMessageDialog(this, "Não há knights para excluir.");
+            JOptionPane.showMessageDialog(this, "Nenhum Knight para excluir.", "Erro", JOptionPane.WARNING_MESSAGE);
         }
-
     }//GEN-LAST:event_jButtonExcluirKnightMouseClicked
 
     private void jButtonAlterarKnightMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAlterarKnightMouseClicked
-        if (knightsList.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Não há knights para alterar.");
-            return;
-        }
+        if (!knightsList.isEmpty() && currentIndex >= 0 && currentIndex < knightsList.size()) {
+            String nomeOriginal = knightsList.get(currentIndex).getNome();
 
-        Knight currentKnight = knightsList.get(currentIndex);
-
-        // Cria os campos e preenche com os dados atuais
-        JTextField nomeField = new JTextField(currentKnight.getNome());
-        JTextField levelField = new JTextField(String.valueOf(currentKnight.getLevel()));
-        JTextField skillField = new JTextField(String.valueOf(currentKnight.getSkill()));
-
-        JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("Nome:"));
-        panel.add(nomeField);
-        panel.add(new JLabel("Level:"));
-        panel.add(levelField);
-        panel.add(new JLabel("Skill:"));
-        panel.add(skillField);
-
-        int resultado = JOptionPane.showConfirmDialog(this, panel, "Editar Knight",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (resultado == JOptionPane.OK_OPTION) {
+            // Pega os dados dos campos de texto da própria janela para alteração
+            int level = 0;
             try {
-                String novoNome = nomeField.getText().trim();
-                int novoLevel = Integer.parseInt(levelField.getText().trim());
-                int novoSkill = Integer.parseInt(skillField.getText().trim());
-
-                // Atualiza os dados do knight
-                currentKnight.setNome(novoNome);
-                currentKnight.setLevel(novoLevel);
-                currentKnight.setSkill(novoSkill);
-
-                // Atualiza exibição e arquivo
-                exibirKnight();
-                atualizarArquivo();
-
-                JOptionPane.showMessageDialog(this, "Knight alterado com sucesso!");
+                level = Integer.parseInt(jTextFieldLevelKnight.getText());
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Level e Skill devem ser números inteiros.");
+                JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            int skill = 0;
+            try {
+                skill = Integer.parseInt(jTextFieldSkillKnight.getText());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Skill.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Chama o método alterar do controller
+            controller.alterar(nomeOriginal, level, skill);
+            JOptionPane.showMessageDialog(this, "Dados do Knight " + nomeOriginal + " alterados com sucesso!");
+
+            // Recarrega a lista para refletir a alteração e exibe os dados atualizados
+            carregarKnights();
+            exibirKnight();
+        } else {
+            JOptionPane.showMessageDialog(this, "Nenhum Knight selecionado para alterar.", "Erro", JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_jButtonAlterarKnightMouseClicked
 
@@ -381,31 +372,24 @@ public class KnightJanela extends javax.swing.JFrame {
             return;
         }
 
-        boolean encontrado = false;
+        Knight foundKnight = controller.buscarPorNome(nomePesquisa); // Usa o controller para buscar
 
-        for (int i = 0; i < knightsList.size(); i++) {
-            Knight k = knightsList.get(i);
-            if (k.getNome().equalsIgnoreCase(nomePesquisa)) {
-                // Atualiza campos com o Knight encontrado
-                jTextFieldNomeKnight.setText(k.getNome());
-                jTextFieldLevelKnight.setText(String.valueOf(k.getLevel()));
-                jTextPaneSkillKnight.setText(String.valueOf(k.getSkill()));
+        if (foundKnight != null) {
+            // Atualiza campos com o Knight encontrado
+            jTextFieldNomeKnight.setText(foundKnight.getNome());
+            jTextFieldLevelKnight.setText(String.valueOf(foundKnight.getLevel()));
+            jTextFieldSkillKnight.setText(String.valueOf(foundKnight.getSkill()));
 
-                // Atualiza índice atual
-                currentIndex = i;
+            // Atualiza o currentIndex para o Knight encontrado
+            currentIndex = knightsList.indexOf(foundKnight);
 
-                // Atualiza label
-                exibirKnight();
+            // Atualiza label
+            exibirKnight();
 
-                encontrado = true;
-                break;
-            }
-        }
-
-        if (!encontrado) {
+            JOptionPane.showMessageDialog(this, "Knight '" + nomePesquisa + "' encontrado com sucesso!");
+        } else {
             JOptionPane.showMessageDialog(this, "Knight com nome '" + nomePesquisa + "' não encontrado.");
         }
-
     }//GEN-LAST:event_jButtonPesquisarKnightMouseClicked
 
     /**
@@ -459,6 +443,6 @@ public class KnightJanela extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextFieldLevelKnight;
     private javax.swing.JTextField jTextFieldNomeKnight;
-    private javax.swing.JTextPane jTextPaneSkillKnight;
+    private javax.swing.JTextPane jTextFieldSkillKnight;
     // End of variables declaration//GEN-END:variables
 }

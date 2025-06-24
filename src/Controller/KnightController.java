@@ -7,54 +7,95 @@ package Controller;
 import Model.Knight;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class KnightController {
 
-    private List<Knight> knights = new ArrayList<>();
+    private List<Knight> knights;
+    private final String CAMINHO_ARQUIVO = "src/Personagens/knights.dat";
 
-    // Método para salvar Knight
-    public void salvar(Knight knight) {
-        try {
-            // Caminho correto para dentro da pasta src/Personagens
-            File directory = new File("src/Personagens");
-            if (!directory.exists()) {
-                directory.mkdirs(); // Cria a pasta Personagens dentro de src, caso não exista
-            }
+    public KnightController() {
+        this.knights = carregarKnights();
+    }
 
-            // Agora salva o arquivo knights.txt dentro de src/Personagens
-            PrintWriter writer = new PrintWriter(new FileWriter("src/Personagens/knights.txt", true));
-            writer.println(knight.getNome() + "," + knight.getLevel() + "," + knight.getSkill());
-            knights.add(knight);
-            writer.close();
-            System.out.println("Knight salvo com sucesso!");
+    private void salvarTodosKnights() {
+        File directory = new File("src/Personagens");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        try (FileOutputStream fileOut = new FileOutputStream(CAMINHO_ARQUIVO);
+             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
+
+            objectOut.writeObject(knights);
+
         } catch (IOException e) {
-            System.out.println("Erro ao salvar Knight: " + e.getMessage());
+            System.out.println("Erro ao salvar todos os Knights: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    // Método para excluir Knight
+    private List<Knight> carregarKnights() {
+        File file = new File(CAMINHO_ARQUIVO);
+        if (!file.exists()) {
+            return new ArrayList<>();
+        }
+
+        try (FileInputStream fileIn = new FileInputStream(CAMINHO_ARQUIVO);
+             ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
+
+            List<Knight> loadedKnights = (List<Knight>) objectIn.readObject();
+            return loadedKnights;
+
+        } catch (FileNotFoundException e) {
+            return new ArrayList<>();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    public void salvar(Knight knight) {
+        this.knights.add(knight);
+        salvarTodosKnights();
+    }
+
     public void excluir(String nome) {
-        for (Knight knight : knights) {
-            if (knight.getNome().equals(nome)) {
-                knights.remove(knight);
-                System.out.println("Knight " + nome + " excluído com sucesso!");
-                return;
-            }
+        boolean removido = knights.removeIf(knight -> knight.getNome().equals(nome));
+        if (removido) {
+            salvarTodosKnights();
         }
-        System.out.println("Knight não encontrado.");
     }
 
-    // Método para alterar dados de Knight
     public void alterar(String nome, int level, int skill) {
+        boolean alterado = false;
         for (Knight knight : knights) {
             if (knight.getNome().equals(nome)) {
                 knight.setLevel(level);
                 knight.setSkill(skill);
-                System.out.println("Dados do Knight " + nome + " alterados com sucesso!");
-                return;
+                alterado = true;
+                break;
             }
         }
-        System.out.println("Knight não encontrado.");
+        if (alterado) {
+            salvarTodosKnights();
+        }
+    }
+
+    public List<Knight> getTodosKnights() {
+        return new ArrayList<>(this.knights);
+    }
+
+    public Knight buscarPorNome(String nome) {
+        for (Knight knight : knights) {
+            if (knight.getNome().equals(nome)) {
+                return knight;
+            }
+        }
+        return null;
     }
 }

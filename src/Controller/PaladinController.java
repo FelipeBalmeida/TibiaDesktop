@@ -1,55 +1,97 @@
 package Controller;
 
 import Model.Paladin;
+
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PaladinController {
 
-    private List<Paladin> paladins = new ArrayList<>();
+    private List<Paladin> paladins;
+    private final String CAMINHO_ARQUIVO = "src/Personagens/paladins.dat";
 
-    // Método para salvar Paladin
-    public void salvar(Paladin paladin) {
-        try {
-            // Caminho correto para dentro da pasta src/Personagens
-            File directory = new File("src/Personagens");
-            if (!directory.exists()) {
-                directory.mkdirs(); // Cria a pasta Personagens dentro de src, caso não exista
-            }
+    public PaladinController() {
+        this.paladins = carregarPaladins();
+    }
 
-            // Agora salva o arquivo paladins.txt dentro de src/Personagens
-            PrintWriter writer = new PrintWriter(new FileWriter("src/Personagens/paladins.txt", true));
-            writer.println(paladin.getNome() + "," + paladin.getLevel() + "," + paladin.getSkill());
-            paladins.add(paladin);
-            writer.close();
-            System.out.println("Paladin salvo com sucesso!");
+    private void salvarTodosPaladins() {
+        File directory = new File("src/Personagens");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        try (FileOutputStream fileOut = new FileOutputStream(CAMINHO_ARQUIVO);
+             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
+
+            objectOut.writeObject(paladins);
+
         } catch (IOException e) {
-            System.out.println("Erro ao salvar Paladin: " + e.getMessage());
+            System.out.println("Erro ao salvar todos os Paladins: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    // Método para excluir Paladin
+    private List<Paladin> carregarPaladins() {
+        File file = new File(CAMINHO_ARQUIVO);
+        if (!file.exists()) {
+            return new ArrayList<>();
+        }
+
+        try (FileInputStream fileIn = new FileInputStream(CAMINHO_ARQUIVO);
+             ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
+
+            List<Paladin> loadedPaladins = (List<Paladin>) objectIn.readObject();
+            return loadedPaladins;
+
+        } catch (FileNotFoundException e) {
+            return new ArrayList<>();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    public void salvar(Paladin paladin) {
+        this.paladins.add(paladin);
+        salvarTodosPaladins();
+    }
+
     public void excluir(String nome) {
-        for (Paladin paladin : paladins) {
-            if (paladin.getNome().equals(nome)) {
-                paladins.remove(paladin);
-                System.out.println("Paladin " + nome + " excluído com sucesso!");
-                return;
-            }
+        boolean removido = paladins.removeIf(paladin -> paladin.getNome().equals(nome));
+        if (removido) {
+            salvarTodosPaladins();
         }
-        System.out.println("Paladin não encontrado.");
     }
 
-    // Método para alterar dados de Paladin
     public void alterar(String nome, int level, int skill) {
+        boolean alterado = false;
         for (Paladin paladin : paladins) {
             if (paladin.getNome().equals(nome)) {
                 paladin.setLevel(level);
                 paladin.setSkill(skill);
-                System.out.println("Dados do Paladin " + nome + " alterados com sucesso!");
-                return;
+                alterado = true;
+                break;
             }
         }
-        System.out.println("Paladin não encontrado.");
+        if (alterado) {
+            salvarTodosPaladins();
+        }
+    }
+
+    public List<Paladin> getTodosPaladins() {
+        return new ArrayList<>(this.paladins);
+    }
+
+    public Paladin buscarPorNome(String nome) {
+        for (Paladin paladin : paladins) {
+            if (paladin.getNome().equals(nome)) {
+                return paladin;
+            }
+        }
+        return null;
     }
 }

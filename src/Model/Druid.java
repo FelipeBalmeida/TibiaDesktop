@@ -4,11 +4,15 @@
  */
 package Model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author felip
  */
-public class Druid {
+public class Druid implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String nome;
     private int level;
     private int magicLevel;
@@ -19,15 +23,10 @@ public class Druid {
         this.magicLevel = magicLevel;
     }
 
-
     public void exibirStatus() {
         System.out.println("Druid: " + nome);
         System.out.println("Level: " + level);
         System.out.println("Magic Level: " + magicLevel);
-    }
-
-    public void salvarDados() {
-        System.out.println("Salvando dados de Druid...");
     }
 
     // Getters e setters
@@ -53,6 +52,6 @@ public class Druid {
 
     public void setMagicLevel(int magicLevel) {
         this.magicLevel = magicLevel;
-    } 
-    
+    }
+
 }

@@ -18,17 +18,17 @@ import java.awt.Image;
 public class PaladinJanela extends javax.swing.JFrame {
 
     private PaladinController controller = new PaladinController();
-    private List<Paladin> paladinsList = new ArrayList<>();
+    private List<Paladin> paladinsList; // A lista será inicializada e preenchida pelo controller
     private int currentIndex = 0;
     private JLabel backgroundLabel;
 
     /**
-     * Creates new form Knight
+     * Creates new form PaladinJanela
      */
     public PaladinJanela() {
         initComponents();
-        carregarPaladins(); // Carregar os knights ao iniciar a janela
-        exibirPaladin(); // Exibir o primeiro Knight
+        carregarPaladins(); // Carregar os paladinos ao iniciar a janela
+        exibirPaladin(); // Exibir o primeiro Paladino
         setLocationRelativeTo(null);
 
         ImageIcon backgroundImage = new ImageIcon(getClass().getResource("/imagens/2.png"));
@@ -37,59 +37,48 @@ public class PaladinJanela extends javax.swing.JFrame {
 
         backgroundLabel.setBounds(0, 0, this.getWidth(), this.getHeight());
 
-        // Usar layout nulo para posicionar o JLabel no fundo
         getLayeredPane().setLayout(null);
         getLayeredPane().add(backgroundLabel, new Integer(Integer.MIN_VALUE));
 
-        // Deixar o painel principal transparente para o fundo aparecer
         ((JPanel) this.getContentPane()).setOpaque(false);
 
-        // Ajustar tamanho e outras configurações da janela (se quiser)
         setSize(500, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     private void carregarPaladins() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("src/Personagens/paladins.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] dados = line.split(",");
-                if (dados.length == 3) {
-                    String nome = dados[0];
-                    int level = Integer.parseInt(dados[1]);
-                    int skill = Integer.parseInt(dados[2]);
-                    paladinsList.add(new Paladin(nome, level, skill));
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Erro ao carregar os paladinos: " + e.getMessage());
+        this.paladinsList = controller.getTodosPaladins(); // Obtém a lista do Controller
+
+        if (paladinsList.isEmpty()) {
+            currentIndex = 0;
+        } else if (currentIndex >= paladinsList.size()) {
+            currentIndex = paladinsList.size() - 1;
         }
     }
 
-    // Exibir o knight atual no JLabel
     private void exibirPaladin() {
-        if (!paladinsList.isEmpty()) {
+        if (!paladinsList.isEmpty() && currentIndex >= 0 && currentIndex < paladinsList.size()) {
             Paladin currentPaladin = paladinsList.get(currentIndex);
+            // Preencher os JTextFields com os dados do Paladin atual
+            jTextFieldNomePaladin.setText(currentPaladin.getNome()); // Assumindo jTextFieldNomePaladin
+            jTextFieldLevelPaladin.setText(String.valueOf(currentPaladin.getLevel())); // Assumindo jTextFieldLevelPaladin
+            jTextFieldSkillPaladin.setText(String.valueOf(currentPaladin.getSkill())); // Assumindo jTextFieldSkillPaladin
+
             jLabelPaladinSalvos.setText("Nome: " + currentPaladin.getNome()
                     + " | Level: " + currentPaladin.getLevel()
                     + " | Skill: " + currentPaladin.getSkill());
         } else {
+            // Limpa os campos se não houver Paladin para exibir
+            jTextFieldNomePaladin.setText("");
+            jTextFieldLevelPaladin.setText("");
+            jTextFieldSkillPaladin.setText("");
             jLabelPaladinSalvos.setText("Nenhum Paladin salvo.");
         }
     }
 
-    private void atualizarArquivo() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("src/Personagens/paladins.txt"))) {
-            for (Paladin paladin : paladinsList) {
-                writer.println(paladin.getNome() + "," + paladin.getLevel() + "," + paladin.getSkill());
-            }
-            System.out.println("Arquivo paladins.txt atualizado com sucesso!");
-        } catch (IOException e) {
-            System.out.println("Erro ao atualizar o arquivo paladins.txt: " + e.getMessage());
-        }
-    }
-
+    // O método atualizarArquivo() não é mais necessário aqui.
+    // private void atualizarArquivo() { ... }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -110,7 +99,7 @@ public class PaladinJanela extends javax.swing.JFrame {
         jLabel3 = new javax.swing.JLabel();
         jTextFieldLevelPaladin = new javax.swing.JTextField();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTextPaneSkillPaladin = new javax.swing.JTextPane();
+        jTextFieldSkillPaladin = new javax.swing.JTextPane();
         jLabelPaladinSalvos = new javax.swing.JLabel();
         jButtonPassarPaladin = new javax.swing.JButton();
         jButtonPesquisarPaladin = new javax.swing.JButton();
@@ -176,7 +165,7 @@ public class PaladinJanela extends javax.swing.JFrame {
             }
         });
 
-        jScrollPane1.setViewportView(jTextPaneSkillPaladin);
+        jScrollPane1.setViewportView(jTextFieldSkillPaladin);
 
         jLabelPaladinSalvos.setFont(new java.awt.Font("Segoe UI Historic", 3, 14)); // NOI18N
         jLabelPaladinSalvos.setForeground(new java.awt.Color(0, 51, 255));
@@ -277,12 +266,26 @@ public class PaladinJanela extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonAlterarPaladinActionPerformed
 
     private void jButtonSalvarPaladinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSalvarPaladinMouseClicked
-        // Pega os dados dos campos
+// Pega os dados dos campos e adiciona tratamento de erro
         String nome = jTextFieldNomePaladin.getText();
-        int level = Integer.parseInt(jTextFieldLevelPaladin.getText());
-        int skill = Integer.parseInt(jTextPaneSkillPaladin.getText());
 
-        // Cria o objeto Knight
+        int level = 0;
+        try {
+            level = Integer.parseInt(jTextFieldLevelPaladin.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+            return; // Sai do método se houver erro
+        }
+
+        int skill = 0;
+        try {
+            skill = Integer.parseInt(jTextFieldSkillPaladin.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Skill.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+            return; // Sai do método se houver erro
+        }
+
+        // Cria o objeto Paladin
         Paladin paladin = new Paladin(nome, level, skill);
 
         // Salva usando o controller
@@ -290,7 +293,11 @@ public class PaladinJanela extends javax.swing.JFrame {
 
         // Mensagem de sucesso
         JOptionPane.showMessageDialog(this, "Paladin salvo com sucesso!");
+
+        // Recarrega a lista para refletir a adição e exibe o novo Paladin
         carregarPaladins();
+        currentIndex = paladinsList.size() - 1; // Vai para o último adicionado
+        exibirPaladin();
     }//GEN-LAST:event_jButtonSalvarPaladinMouseClicked
 
     private void jButtonSalvarPaladinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSalvarPaladinActionPerformed
@@ -299,9 +306,8 @@ public class PaladinJanela extends javax.swing.JFrame {
 
     private void jButtonPassarPaladinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPassarPaladinMouseClicked
         if (!paladinsList.isEmpty()) {
-            // Incrementar o índice para passar para o próximo pala
-            currentIndex = (currentIndex + 1) % paladinsList.size(); // Volta ao primeiro pala se ultrapassar o tamanho da lista
-            exibirPaladin(); // Atualiza a exibição do knight
+            currentIndex = (currentIndex + 1) % paladinsList.size();
+            exibirPaladin();
         }
     }//GEN-LAST:event_jButtonPassarPaladinMouseClicked
 
@@ -310,70 +316,57 @@ public class PaladinJanela extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonPassarPaladinActionPerformed
 
     private void jButtonExcluirPaladinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonExcluirPaladinMouseClicked
-        if (!paladinsList.isEmpty()) {
-            // Excluir o palat atual da lista
-            paladinsList.remove(currentIndex);
-
-            // Se a lista não estiver vazia após a exclusão, ajusta o índice
-            if (currentIndex >= paladinsList.size()) {
-                currentIndex = paladinsList.size() - 1; // Se o índice for maior que o tamanho, vai para o último knight
+        if (!paladinsList.isEmpty() && currentIndex >= 0 && currentIndex < paladinsList.size()) {
+            String nomeParaExcluir = paladinsList.get(currentIndex).getNome();
+            int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir o Paladin " + nomeParaExcluir + "?", "Confirmar Exclusão", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                controller.excluir(nomeParaExcluir);
+                JOptionPane.showMessageDialog(this, "Paladin " + nomeParaExcluir + " excluído com sucesso!");
+                carregarPaladins(); // Recarrega a lista para refletir a exclusão
+                if (!paladinsList.isEmpty()) {
+                    if (currentIndex >= paladinsList.size()) {
+                        currentIndex = paladinsList.size() - 1;
+                    }
+                    exibirPaladin();
+                } else {
+                    exibirPaladin(); // Exibe "Nenhum Paladin salvo."
+                }
             }
-
-            // Atualiza a exibição
-            exibirPaladin();
-
-            // Atualizar o arquivo Paladin.txt
-            atualizarArquivo();
         } else {
-            // Se não houver Paladin, exibe uma mensagem
-            JOptionPane.showMessageDialog(this, "Não há Paladins para excluir.");
+            JOptionPane.showMessageDialog(this, "Nenhum Paladin para excluir.", "Erro", JOptionPane.WARNING_MESSAGE);
         }
-
     }//GEN-LAST:event_jButtonExcluirPaladinMouseClicked
 
     private void jButtonAlterarPaladinMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAlterarPaladinMouseClicked
-        if (paladinsList.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Não há Paladin para alterar.");
-            return;
-        }
+        if (!paladinsList.isEmpty() && currentIndex >= 0 && currentIndex < paladinsList.size()) {
+            String nomeOriginal = paladinsList.get(currentIndex).getNome();
 
-        Paladin currentPaladin = paladinsList.get(currentIndex);
-
-        // Cria os campos e preenche com os dados atuais
-        JTextField nomeField = new JTextField(currentPaladin.getNome());
-        JTextField levelField = new JTextField(String.valueOf(currentPaladin.getLevel()));
-        JTextField skillField = new JTextField(String.valueOf(currentPaladin.getSkill()));
-
-        JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("Nome:"));
-        panel.add(nomeField);
-        panel.add(new JLabel("Level:"));
-        panel.add(levelField);
-        panel.add(new JLabel("Skill:"));
-        panel.add(skillField);
-
-        int resultado = JOptionPane.showConfirmDialog(this, panel, "Editar Paladin",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (resultado == JOptionPane.OK_OPTION) {
+            // Pega os dados dos campos de texto da própria janela para alteração
+            int level = 0;
             try {
-                String novoNome = nomeField.getText().trim();
-                int novoLevel = Integer.parseInt(levelField.getText().trim());
-                int novoSkill = Integer.parseInt(skillField.getText().trim());
-
-                // Atualiza os dados do knight
-                currentPaladin.setNome(novoNome);
-                currentPaladin.setLevel(novoLevel);
-                currentPaladin.setSkill(novoSkill);
-
-                // Atualiza exibição e arquivo
-                exibirPaladin();
-                atualizarArquivo();
-
-                JOptionPane.showMessageDialog(this, "Paladin alterado com sucesso!");
+                level = Integer.parseInt(jTextFieldLevelPaladin.getText());
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Level e Skill devem ser números inteiros.");
+                JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            int skill = 0;
+            try {
+                skill = Integer.parseInt(jTextFieldSkillPaladin.getText());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Skill.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Chama o método alterar do controller
+            controller.alterar(nomeOriginal, level, skill);
+            JOptionPane.showMessageDialog(this, "Dados do Paladin " + nomeOriginal + " alterados com sucesso!");
+
+            // Recarrega a lista para refletir a alteração e exibe os dados atualizados
+            carregarPaladins();
+            exibirPaladin();
+        } else {
+            JOptionPane.showMessageDialog(this, "Nenhum Paladin selecionado para alterar.", "Erro", JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_jButtonAlterarPaladinMouseClicked
 
@@ -388,31 +381,25 @@ public class PaladinJanela extends javax.swing.JFrame {
             return;
         }
 
-        boolean encontrado = false;
+        Paladin foundPaladin = controller.buscarPorNome(nomePesquisa); // Usa o controller para buscar
 
-        for (int i = 0; i < paladinsList.size(); i++) {
-            Paladin k = paladinsList.get(i);
-            if (k.getNome().equalsIgnoreCase(nomePesquisa)) {
-                // Atualiza campos com o Paladin encontrado
-                jTextFieldNomePaladin.setText(k.getNome());
-                jTextFieldLevelPaladin.setText(String.valueOf(k.getLevel()));
-                jTextPaneSkillPaladin.setText(String.valueOf(k.getSkill()));
+        if (foundPaladin != null) {
+            // Atualiza campos com o Paladin encontrado
+            jTextFieldNomePaladin.setText(foundPaladin.getNome());
+            jTextFieldLevelPaladin.setText(String.valueOf(foundPaladin.getLevel()));
+            jTextFieldSkillPaladin.setText(String.valueOf(foundPaladin.getSkill()));
 
-                // Atualiza índice atual
-                currentIndex = i;
+            // Atualiza o currentIndex para o Paladin encontrado
+            carregarPaladins(); // Garante que a lista local paladinsList está atualizada antes de buscar o índice
+            currentIndex = paladinsList.indexOf(foundPaladin);
 
-                // Atualiza label
-                exibirPaladin();
+            // Atualiza label
+            exibirPaladin();
 
-                encontrado = true;
-                break;
-            }
-        }
-
-        if (!encontrado) {
+            JOptionPane.showMessageDialog(this, "Paladin '" + nomePesquisa + "' encontrado com sucesso!");
+        } else {
             JOptionPane.showMessageDialog(this, "Paladin com nome '" + nomePesquisa + "' não encontrado.");
         }
-
     }//GEN-LAST:event_jButtonPesquisarPaladinMouseClicked
 
     /**
@@ -468,6 +455,6 @@ public class PaladinJanela extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTextField jTextFieldLevelPaladin;
     private javax.swing.JTextField jTextFieldNomePaladin;
-    private javax.swing.JTextPane jTextPaneSkillPaladin;
+    private javax.swing.JTextPane jTextFieldSkillPaladin;
     // End of variables declaration//GEN-END:variables
 }

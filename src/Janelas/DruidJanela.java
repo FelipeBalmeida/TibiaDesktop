@@ -15,19 +15,19 @@ import java.awt.GridLayout;
 import javax.swing.ImageIcon;
 import java.awt.Image;
 
-
 public class DruidJanela extends javax.swing.JFrame {
 
     private DruidController controller = new DruidController();
-    private List<Druid> druidsList = new ArrayList<>();
+    private List<Druid> druidsList; // A lista será inicializada e preenchida pelo controller
     private int currentIndex = 0;
     private JLabel backgroundLabel;
+
     /**
-     * Creates new form Knight
+     * Creates new form DruidJanela
      */
     public DruidJanela() {
         initComponents();
-        carregarDruids(); // Carregar os kDruid ao iniciar a janela
+        carregarDruids(); // Carregar os Druids ao iniciar a janela
         exibirDruid(); // Exibir o primeiro Druid
         setLocationRelativeTo(null);
 
@@ -37,59 +37,48 @@ public class DruidJanela extends javax.swing.JFrame {
 
         backgroundLabel.setBounds(0, 0, this.getWidth(), this.getHeight());
 
-        // Usar layout nulo para posicionar o JLabel no fundo
         getLayeredPane().setLayout(null);
         getLayeredPane().add(backgroundLabel, new Integer(Integer.MIN_VALUE));
 
-        // Deixar o painel principal transparente para o fundo aparecer
         ((JPanel) this.getContentPane()).setOpaque(false);
 
-        // Ajustar tamanho e outras configurações da janela (se quiser)
         setSize(500, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     private void carregarDruids() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("src/Personagens/druids.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] dados = line.split(",");
-                if (dados.length == 3) {
-                    String nome = dados[0];
-                    int level = Integer.parseInt(dados[1]);
-                    int magicLevel = Integer.parseInt(dados[2]);
-                    druidsList.add(new Druid(nome, level, magicLevel));
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Erro ao carregar os Druids: " + e.getMessage());
+        this.druidsList = controller.getTodosDruids(); // Obtém a lista do Controller
+
+        if (druidsList.isEmpty()) {
+            currentIndex = 0;
+        } else if (currentIndex >= druidsList.size()) {
+            currentIndex = druidsList.size() - 1;
         }
     }
 
-    // Exibir o Druid atual no JLabel
     private void exibirDruid() {
-        if (!druidsList.isEmpty()) {
+        if (!druidsList.isEmpty() && currentIndex >= 0 && currentIndex < druidsList.size()) {
             Druid currentDruid = druidsList.get(currentIndex);
+            // Preencher os JTextFields e JTextPane
+            jTextFieldNomeDruid.setText(currentDruid.getNome());
+            jTextFieldLevelDruid.setText(String.valueOf(currentDruid.getLevel()));
+            jTextPaneMagicLevelDruid.setText(String.valueOf(currentDruid.getMagicLevel()));
+
             jLabelDruidSalvos.setText("Nome: " + currentDruid.getNome()
                     + " | Level: " + currentDruid.getLevel()
-                    + " | Skill: " + currentDruid.getMagicLevel());
+                    + " | Magic Level: " + currentDruid.getMagicLevel()); // Alterado para Magic Level
         } else {
+            // Limpa os campos se não houver Druid para exibir
+            jTextFieldNomeDruid.setText("");
+            jTextFieldLevelDruid.setText("");
+            jTextPaneMagicLevelDruid.setText("");
             jLabelDruidSalvos.setText("Nenhum Druid salvo.");
         }
     }
 
-    private void atualizarArquivo() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("src/Personagens/druids.txt"))) {
-            for (Druid druid : druidsList) {
-                writer.println(druid.getNome() + "," + druid.getLevel() + "," + druid.getMagicLevel());
-            }
-            System.out.println("Arquivo Druids.txt atualizado com sucesso!");
-        } catch (IOException e) {
-            System.out.println("Erro ao atualizar o arquivo Druids.txt: " + e.getMessage());
-        }
-    }
-
+    // O método atualizarArquivo() não é mais necessário aqui.
+    // private void atualizarArquivo() { ... }
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -279,20 +268,33 @@ public class DruidJanela extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonAlterarDruidActionPerformed
 
     private void jButtonSalvarDruidMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSalvarDruidMouseClicked
-        // Pega os dados dos campos
         String nome = jTextFieldNomeDruid.getText();
-        int level = Integer.parseInt(jTextFieldLevelDruid.getText());
-        int magicLevel = Integer.parseInt(jTextPaneMagicLevelDruid.getText());
 
-        // Cria o objeto Druid
+        int level = 0;
+        try {
+            level = Integer.parseInt(jTextFieldLevelDruid.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
+        int magicLevel = 0;
+        try {
+            magicLevel = Integer.parseInt(jTextPaneMagicLevelDruid.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Magic Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+
         Druid druid = new Druid(nome, level, magicLevel);
 
-        // Salva usando o controller
         controller.salvar(druid);
 
-        // Mensagem de sucesso
         JOptionPane.showMessageDialog(this, "Druid salvo com sucesso!");
+
         carregarDruids();
+        currentIndex = druidsList.size() - 1;
+        exibirDruid();
     }//GEN-LAST:event_jButtonSalvarDruidMouseClicked
 
     private void jButtonSalvarDruidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSalvarDruidActionPerformed
@@ -301,9 +303,8 @@ public class DruidJanela extends javax.swing.JFrame {
 
     private void jButtonPassarDruidMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPassarDruidMouseClicked
         if (!druidsList.isEmpty()) {
-            // Incrementar o índice para passar para o próximo kDruid
-            currentIndex = (currentIndex + 1) % druidsList.size(); // Volta ao primeiro kDruidt se ultrapassar o tamanho da lista
-            exibirDruid(); // Atualiza a exibição do Druid
+            currentIndex = (currentIndex + 1) % druidsList.size();
+            exibirDruid();
         }
     }//GEN-LAST:event_jButtonPassarDruidMouseClicked
 
@@ -312,70 +313,57 @@ public class DruidJanela extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonPassarDruidActionPerformed
 
     private void jButtonExcluirDruidMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonExcluirDruidMouseClicked
-        if (!druidsList.isEmpty()) {
-            // Excluir o knight atual da lista
-            druidsList.remove(currentIndex);
-
-            // Se a lista não estiver vazia após a exclusão, ajusta o índice
-            if (currentIndex >= druidsList.size()) {
-                currentIndex = druidsList.size() - 1; // Se o índice for maior que o tamanho, vai para o último knight
+        if (!druidsList.isEmpty() && currentIndex >= 0 && currentIndex < druidsList.size()) {
+            String nomeParaExcluir = druidsList.get(currentIndex).getNome();
+            int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir o Druid " + nomeParaExcluir + "?", "Confirmar Exclusão", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                controller.excluir(nomeParaExcluir);
+                JOptionPane.showMessageDialog(this, "Druid " + nomeParaExcluir + " excluído com sucesso!");
+                carregarDruids(); // Recarrega a lista para refletir a exclusão
+                if (!druidsList.isEmpty()) {
+                    if (currentIndex >= druidsList.size()) {
+                        currentIndex = druidsList.size() - 1;
+                    }
+                    exibirDruid();
+                } else {
+                    exibirDruid(); // Exibe "Nenhum Druid salvo."
+                }
             }
-
-            // Atualiza a exibição
-            exibirDruid();
-
-            // Atualizar o arquivo knights.txt
-            atualizarArquivo();
         } else {
-            // Se não houver knights, exibe uma mensagem
-            JOptionPane.showMessageDialog(this, "Não há Druid para excluir.");
+            JOptionPane.showMessageDialog(this, "Nenhum Druid para excluir.", "Erro", JOptionPane.WARNING_MESSAGE);
         }
-
     }//GEN-LAST:event_jButtonExcluirDruidMouseClicked
 
     private void jButtonAlterarDruidMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAlterarDruidMouseClicked
-        if (druidsList.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Não há Druid para alterar.");
-            return;
-        }
+        if (!druidsList.isEmpty() && currentIndex >= 0 && currentIndex < druidsList.size()) {
+            String nomeOriginal = druidsList.get(currentIndex).getNome(); // O nome original para buscar no controller
 
-        Druid currentDruid = druidsList.get(currentIndex);
-
-        // Cria os campos e preenche com os dados atuais
-        JTextField nomeField = new JTextField(currentDruid.getNome());
-        JTextField levelField = new JTextField(String.valueOf(currentDruid.getLevel()));
-        JTextField magicLevelField = new JTextField(String.valueOf(currentDruid.getMagicLevel()));
-
-        JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("Nome:"));
-        panel.add(nomeField);
-        panel.add(new JLabel("Level:"));
-        panel.add(levelField);
-        panel.add(new JLabel("Skill:"));
-        panel.add(magicLevelField);
-
-        int resultado = JOptionPane.showConfirmDialog(this, panel, "Editar Druid",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (resultado == JOptionPane.OK_OPTION) {
+            // Pega os dados dos campos de texto da própria janela para alteração
+            int level = 0;
             try {
-                String novoNome = nomeField.getText().trim();
-                int novoLevel = Integer.parseInt(levelField.getText().trim());
-                int novoMagicLevel = Integer.parseInt(magicLevelField.getText().trim());
-
-                // Atualiza os dados do knight
-                currentDruid.setNome(novoNome);
-                currentDruid.setLevel(novoLevel);
-                currentDruid.setMagicLevel(novoMagicLevel);
-
-                // Atualiza exibição e arquivo
-                exibirDruid();
-                atualizarArquivo();
-
-                JOptionPane.showMessageDialog(this, "Druid alterado com sucesso!");
+                level = Integer.parseInt(jTextFieldLevelDruid.getText());
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Level e Ml devem ser números inteiros.");
+                JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            int magicLevel = 0;
+            try {
+                magicLevel = Integer.parseInt(jTextPaneMagicLevelDruid.getText());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Magic Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Chama o método alterar do controller
+            controller.alterar(nomeOriginal, level, magicLevel);
+            JOptionPane.showMessageDialog(this, "Dados do Druid " + nomeOriginal + " alterados com sucesso!");
+
+            // Recarrega a lista para refletir a alteração e exibe os dados atualizados
+            carregarDruids();
+            exibirDruid();
+        } else {
+            JOptionPane.showMessageDialog(this, "Nenhum Druid selecionado para alterar.", "Erro", JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_jButtonAlterarDruidMouseClicked
 
@@ -390,31 +378,27 @@ public class DruidJanela extends javax.swing.JFrame {
             return;
         }
 
-        boolean encontrado = false;
+        Druid foundDruid = controller.buscarPorNome(nomePesquisa); // Usa o controller para buscar
 
-        for (int i = 0; i < druidsList.size(); i++) {
-            Druid k = druidsList.get(i);
-            if (k.getNome().equalsIgnoreCase(nomePesquisa)) {
-                // Atualiza campos com o Druid encontrado
-                jTextFieldNomeDruid.setText(k.getNome());
-                jTextFieldLevelDruid.setText(String.valueOf(k.getLevel()));
-                jTextPaneMagicLevelDruid.setText(String.valueOf(k.getMagicLevel()));
+        if (foundDruid != null) {
+            // Atualiza campos com o Druid encontrado
+            jTextFieldNomeDruid.setText(foundDruid.getNome());
+            jTextFieldLevelDruid.setText(String.valueOf(foundDruid.getLevel()));
+            jTextPaneMagicLevelDruid.setText(String.valueOf(foundDruid.getMagicLevel()));
 
-                // Atualiza índice atual
-                currentIndex = i;
+            // Atualiza o currentIndex para o Druid encontrado
+            // Primeiro, garantir que druidsList está atualizada (chamar carregarDruids() antes, se houver risco de dessincronização)
+            // No entanto, se o controller sempre retornar a lista mais recente, o indexOf funcionará.
+            carregarDruids(); // Garante que a lista local druidsList está atualizada antes de buscar o índice
+            currentIndex = druidsList.indexOf(foundDruid);
 
-                // Atualiza label
-                exibirDruid();
+            // Atualiza label
+            exibirDruid();
 
-                encontrado = true;
-                break;
-            }
-        }
-
-        if (!encontrado) {
+            JOptionPane.showMessageDialog(this, "Druid '" + nomePesquisa + "' encontrado com sucesso!");
+        } else {
             JOptionPane.showMessageDialog(this, "Druid com nome '" + nomePesquisa + "' não encontrado.");
         }
-
     }//GEN-LAST:event_jButtonPesquisarDruidMouseClicked
 
     /**

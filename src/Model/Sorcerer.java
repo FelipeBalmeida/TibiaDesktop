@@ -4,11 +4,15 @@
  */
 package Model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author felip
  */
-public class Sorcerer {
+public class Sorcerer implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String nome;
     private int level;
     private int magicLevel;
@@ -19,20 +23,12 @@ public class Sorcerer {
         this.magicLevel = magicLevel;
     }
 
-    // Métodos para exibir e salvar os dados
     public void exibirStatus() {
         System.out.println("Sorcerer: " + nome);
         System.out.println("Level: " + level);
         System.out.println("Magic Level: " + magicLevel);
     }
 
-    public void salvarDados() {
-    
-        System.out.println("Salvando dados de Sorcerer...");
-      
-    }
-
-  
     public String getNome() {
         return nome;
     }
@@ -44,8 +40,8 @@ public class Sorcerer {
     public int getMagicLevel() {
         return magicLevel;
     }
-    
-       // Setters
+
+    // Setters
     public void setNome(String nome) {
         this.nome = nome;
     }

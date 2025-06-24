@@ -4,14 +4,18 @@
  */
 package Model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author felip
  */
-public class Paladin {
+public class Paladin implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String nome;
     private int level;
-    private int skill;  
+    private int skill;
 
     public Paladin(String nome, int level, int skill) {
         this.nome = nome;
@@ -19,15 +23,10 @@ public class Paladin {
         this.skill = skill;
     }
 
-    // Métodos para exibir e salvar os dados
     public void exibirStatus() {
         System.out.println("Paladin: " + nome);
         System.out.println("Level: " + level);
         System.out.println("Skill: " + skill);
-    }
-
-    public void salvarDados() {
-        System.out.println("Salvando dados de Paladin...");
     }
 
     // Getters e setters
@@ -42,7 +41,8 @@ public class Paladin {
     public int getSkill() {
         return skill;
     }
-        public void setNome(String nome) {
+
+    public void setNome(String nome) {
         this.nome = nome;
     }
 

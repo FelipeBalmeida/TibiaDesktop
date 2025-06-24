@@ -15,20 +15,19 @@ import java.awt.GridLayout;
 import javax.swing.ImageIcon;
 import java.awt.Image;
 
-
-
 public class SorcererJanela extends javax.swing.JFrame {
 
     private SorcererController controller = new SorcererController();
-    private List<Sorcerer> sorcerersList = new ArrayList<>();
+    private List<Sorcerer> sorcerersList; // A lista será inicializada e preenchida pelo controller
     private int currentIndex = 0;
     private JLabel backgroundLabel;
+
     /**
-     * Creates new form Knight
+     * Creates new form SorcererJanela
      */
     public SorcererJanela() {
         initComponents();
-        carregarSorcerers(); // Carregar os Sorcererd ao iniciar a janela
+        carregarSorcerers(); // Carregar os Sorcerers ao iniciar a janela
         exibirSorcerer(); // Exibir o primeiro Sorcerer
         setLocationRelativeTo(null);
 
@@ -38,59 +37,48 @@ public class SorcererJanela extends javax.swing.JFrame {
 
         backgroundLabel.setBounds(0, 0, this.getWidth(), this.getHeight());
 
-        // Usar layout nulo para posicionar o JLabel no fundo
         getLayeredPane().setLayout(null);
         getLayeredPane().add(backgroundLabel, new Integer(Integer.MIN_VALUE));
 
-        // Deixar o painel principal transparente para o fundo aparecer
         ((JPanel) this.getContentPane()).setOpaque(false);
 
-        // Ajustar tamanho e outras configurações da janela (se quiser)
         setSize(500, 500);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
     }
 
     private void carregarSorcerers() {
-        try (BufferedReader reader = new BufferedReader(new FileReader("src/Personagens/sorcerers.txt"))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] dados = line.split(",");
-                if (dados.length == 3) {
-                    String nome = dados[0];
-                    int level = Integer.parseInt(dados[1]);
-                    int magicLevel = Integer.parseInt(dados[2]);
-                    sorcerersList.add(new Sorcerer(nome, level, magicLevel));
-                }
-            }
-        } catch (IOException e) {
-            System.out.println("Erro ao carregar os Sorcerers: " + e.getMessage());
+        this.sorcerersList = controller.getTodosSorcerers(); // Obtém a lista do Controller
+
+        if (sorcerersList.isEmpty()) {
+            currentIndex = 0;
+        } else if (currentIndex >= sorcerersList.size()) {
+            currentIndex = sorcerersList.size() - 1;
         }
     }
 
-    // Exibir o Sorcerer atual no JLabel
     private void exibirSorcerer() {
-        if (!sorcerersList.isEmpty()) {
+        if (!sorcerersList.isEmpty() && currentIndex >= 0 && currentIndex < sorcerersList.size()) {
             Sorcerer currentSorcerer = sorcerersList.get(currentIndex);
+            // Preencher os JTextFields e JTextPane com os dados do Sorcerer atual
+            jTextFieldNomeSorcerer.setText(currentSorcerer.getNome()); // Assumindo jTextFieldNomeSorcerer
+            jTextFieldLevelSorcerer.setText(String.valueOf(currentSorcerer.getLevel())); // Assumindo jTextFieldLevelSorcerer
+            jTextPaneMagicLevelSorcerer.setText(String.valueOf(currentSorcerer.getMagicLevel())); // Assumindo jTextPaneMagicLevelSorcerer
+
             jLabelSorcererSalvos.setText("Nome: " + currentSorcerer.getNome()
                     + " | Level: " + currentSorcerer.getLevel()
-                    + " | Skill: " + currentSorcerer.getMagicLevel());
+                    + " | Magic Level: " + currentSorcerer.getMagicLevel()); // Alterado para Magic Level
         } else {
+            // Limpa os campos se não houver Sorcerer para exibir
+            jTextFieldNomeSorcerer.setText("");
+            jTextFieldLevelSorcerer.setText("");
+            jTextPaneMagicLevelSorcerer.setText("");
             jLabelSorcererSalvos.setText("Nenhum Sorcerer salvo.");
         }
     }
 
-    private void atualizarArquivo() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("src/Personagens/sorcerers.txt"))) {
-            for (Sorcerer sorcerer : sorcerersList) {
-                writer.println(sorcerer.getNome() + "," + sorcerer.getLevel() + "," + sorcerer.getMagicLevel());
-            }
-            System.out.println("Arquivo Sorcerers.txt atualizado com sucesso!");
-        } catch (IOException e) {
-            System.out.println("Erro ao atualizar o arquivo Druids.txt: " + e.getMessage());
-        }
-    }
-
+    // O método atualizarArquivo() não é mais necessário aqui.
+    // private void atualizarArquivo() { ... }F
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -270,12 +258,26 @@ public class SorcererJanela extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonAlterarSorcererActionPerformed
 
     private void jButtonSalvarSorcererMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonSalvarSorcererMouseClicked
-        // Pega os dados dos campos
+// Pega os dados dos campos e adiciona tratamento de erro
         String nome = jTextFieldNomeSorcerer.getText();
-        int level = Integer.parseInt(jTextFieldLevelSorcerer.getText());
-        int magicLevel = Integer.parseInt(jTextPaneMagicLevelSorcerer.getText());
 
-        // Cria o objeto Druid
+        int level = 0;
+        try {
+            level = Integer.parseInt(jTextFieldLevelSorcerer.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+            return; // Sai do método se houver erro
+        }
+
+        int magicLevel = 0;
+        try {
+            magicLevel = Integer.parseInt(jTextPaneMagicLevelSorcerer.getText());
+        } catch (NumberFormatException e) {
+            JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Magic Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+            return; // Sai do método se houver erro
+        }
+
+        // Cria o objeto Sorcerer
         Sorcerer sorcerer = new Sorcerer(nome, level, magicLevel);
 
         // Salva usando o controller
@@ -283,7 +285,11 @@ public class SorcererJanela extends javax.swing.JFrame {
 
         // Mensagem de sucesso
         JOptionPane.showMessageDialog(this, "Sorcerer salvo com sucesso!");
+
+        // Recarrega a lista para refletir a adição e exibe o novo Sorcerer
         carregarSorcerers();
+        currentIndex = sorcerersList.size() - 1; // Vai para o último adicionado
+        exibirSorcerer();
     }//GEN-LAST:event_jButtonSalvarSorcererMouseClicked
 
     private void jButtonSalvarSorcererActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonSalvarSorcererActionPerformed
@@ -292,9 +298,8 @@ public class SorcererJanela extends javax.swing.JFrame {
 
     private void jButtonPassarSorcererMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPassarSorcererMouseClicked
         if (!sorcerersList.isEmpty()) {
-            // Incrementar o índice para passar para o próximo kDruid
-            currentIndex = (currentIndex + 1) % sorcerersList.size(); // Volta ao primeiro kDruidt se ultrapassar o tamanho da lista
-            exibirSorcerer(); // Atualiza a exibição do Druid
+            currentIndex = (currentIndex + 1) % sorcerersList.size();
+            exibirSorcerer();
         }
     }//GEN-LAST:event_jButtonPassarSorcererMouseClicked
 
@@ -303,70 +308,57 @@ public class SorcererJanela extends javax.swing.JFrame {
     }//GEN-LAST:event_jButtonPassarSorcererActionPerformed
 
     private void jButtonExcluirSorcererMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonExcluirSorcererMouseClicked
-        if (!sorcerersList.isEmpty()) {
-            // Excluir o knight atual da lista
-            sorcerersList.remove(currentIndex);
-
-            // Se a lista não estiver vazia após a exclusão, ajusta o índice
-            if (currentIndex >= sorcerersList.size()) {
-                currentIndex = sorcerersList.size() - 1; // Se o índice for maior que o tamanho, vai para o último knight
+        if (!sorcerersList.isEmpty() && currentIndex >= 0 && currentIndex < sorcerersList.size()) {
+            String nomeParaExcluir = sorcerersList.get(currentIndex).getNome();
+            int confirm = JOptionPane.showConfirmDialog(this, "Tem certeza que deseja excluir o Sorcerer " + nomeParaExcluir + "?", "Confirmar Exclusão", JOptionPane.YES_NO_OPTION);
+            if (confirm == JOptionPane.YES_OPTION) {
+                controller.excluir(nomeParaExcluir);
+                JOptionPane.showMessageDialog(this, "Sorcerer " + nomeParaExcluir + " excluído com sucesso!");
+                carregarSorcerers(); // Recarrega a lista para refletir a exclusão
+                if (!sorcerersList.isEmpty()) {
+                    if (currentIndex >= sorcerersList.size()) {
+                        currentIndex = sorcerersList.size() - 1;
+                    }
+                    exibirSorcerer();
+                } else {
+                    exibirSorcerer(); // Exibe "Nenhum Sorcerer salvo."
+                }
             }
-
-            // Atualiza a exibição
-            exibirSorcerer();
-
-            // Atualizar o arquivo knights.txt
-            atualizarArquivo();
         } else {
-            // Se não houver knights, exibe uma mensagem
-            JOptionPane.showMessageDialog(this, "Não há Sorcerer para excluir.");
+            JOptionPane.showMessageDialog(this, "Nenhum Sorcerer para excluir.", "Erro", JOptionPane.WARNING_MESSAGE);
         }
-
     }//GEN-LAST:event_jButtonExcluirSorcererMouseClicked
 
     private void jButtonAlterarSorcererMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonAlterarSorcererMouseClicked
-        if (sorcerersList.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Não há Sorcerer para alterar.");
-            return;
-        }
+        if (!sorcerersList.isEmpty() && currentIndex >= 0 && currentIndex < sorcerersList.size()) {
+            String nomeOriginal = sorcerersList.get(currentIndex).getNome();
 
-        Sorcerer currentSorcerer = sorcerersList.get(currentIndex);
-
-        // Cria os campos e preenche com os dados atuais
-        JTextField nomeField = new JTextField(currentSorcerer.getNome());
-        JTextField levelField = new JTextField(String.valueOf(currentSorcerer.getLevel()));
-        JTextField magicLevelField = new JTextField(String.valueOf(currentSorcerer.getMagicLevel()));
-
-        JPanel panel = new JPanel(new GridLayout(0, 1));
-        panel.add(new JLabel("Nome:"));
-        panel.add(nomeField);
-        panel.add(new JLabel("Level:"));
-        panel.add(levelField);
-        panel.add(new JLabel("Magic Level:"));
-        panel.add(magicLevelField);
-
-        int resultado = JOptionPane.showConfirmDialog(this, panel, "Editar Sorcerer",
-                JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-
-        if (resultado == JOptionPane.OK_OPTION) {
+            // Pega os dados dos campos de texto da própria janela para alteração
+            int level = 0;
             try {
-                String novoNome = nomeField.getText().trim();
-                int novoLevel = Integer.parseInt(levelField.getText().trim());
-                int novoMagicLevel = Integer.parseInt(magicLevelField.getText().trim());
-
-                // Atualiza os dados do knight
-                currentSorcerer.setNome(novoNome);
-                currentSorcerer.setLevel(novoLevel);
-                currentSorcerer.setMagicLevel(novoMagicLevel);
-
-                // Atualiza exibição e arquivo
-                exibirSorcerer();
-                atualizarArquivo();
-
-                JOptionPane.showMessageDialog(this, "Sorcerer alterado com sucesso!");
+                level = Integer.parseInt(jTextFieldLevelSorcerer.getText());
             } catch (NumberFormatException e) {
-                JOptionPane.showMessageDialog(this, "Level e Ml devem ser números inteiros.");
+                JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+                return;
             }
+
+            int magicLevel = 0;
+            try {
+                magicLevel = Integer.parseInt(jTextPaneMagicLevelSorcerer.getText());
+            } catch (NumberFormatException e) {
+                JOptionPane.showMessageDialog(this, "Por favor, insira um número válido para o Magic Level.", "Erro de Entrada", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+
+            // Chama o método alterar do controller
+            controller.alterar(nomeOriginal, level, magicLevel);
+            JOptionPane.showMessageDialog(this, "Dados do Sorcerer " + nomeOriginal + " alterados com sucesso!");
+
+            // Recarrega a lista para refletir a alteração e exibe os dados atualizados
+            carregarSorcerers();
+            exibirSorcerer();
+        } else {
+            JOptionPane.showMessageDialog(this, "Nenhum Sorcerer selecionado para alterar.", "Erro", JOptionPane.WARNING_MESSAGE);
         }
     }//GEN-LAST:event_jButtonAlterarSorcererMouseClicked
 
@@ -381,28 +373,23 @@ public class SorcererJanela extends javax.swing.JFrame {
             return;
         }
 
-        boolean encontrado = false;
+        Sorcerer foundSorcerer = controller.buscarPorNome(nomePesquisa); // Usa o controller para buscar
 
-        for (int i = 0; i < sorcerersList.size(); i++) {
-            Sorcerer k = sorcerersList.get(i);
-            if (k.getNome().equalsIgnoreCase(nomePesquisa)) {
-                // Atualiza campos com o Druid encontrado
-                jTextFieldNomeSorcerer.setText(k.getNome());
-                jTextFieldLevelSorcerer.setText(String.valueOf(k.getLevel()));
-                jTextPaneMagicLevelSorcerer.setText(String.valueOf(k.getMagicLevel()));
+        if (foundSorcerer != null) {
+            // Atualiza campos com o Sorcerer encontrado
+            jTextFieldNomeSorcerer.setText(foundSorcerer.getNome());
+            jTextFieldLevelSorcerer.setText(String.valueOf(foundSorcerer.getLevel()));
+            jTextPaneMagicLevelSorcerer.setText(String.valueOf(foundSorcerer.getMagicLevel()));
 
-                // Atualiza índice atual
-                currentIndex = i;
+            // Atualiza o currentIndex para o Sorcerer encontrado
+            carregarSorcerers(); // Garante que a lista local sorcerersList está atualizada antes de buscar o índice
+            currentIndex = sorcerersList.indexOf(foundSorcerer);
 
-                // Atualiza label
-                exibirSorcerer();
+            // Atualiza label
+            exibirSorcerer();
 
-                encontrado = true;
-                break;
-            }
-        }
-
-        if (!encontrado) {
+            JOptionPane.showMessageDialog(this, "Sorcerer '" + nomePesquisa + "' encontrado com sucesso!");
+        } else {
             JOptionPane.showMessageDialog(this, "Sorcerer com nome '" + nomePesquisa + "' não encontrado.");
         }
 

@@ -4,14 +4,18 @@
  */
 package Model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author felip
  */
-public class Knight {
+public class Knight implements Serializable {
+    private static final long serialVersionUID = 1L;
+
     private String nome;
     private int level;
-    private int skill;  
+    private int skill;
 
     public Knight(String nome, int level, int skill) {
         this.nome = nome;
@@ -19,15 +23,10 @@ public class Knight {
         this.skill = skill;
     }
 
-    // Métodos para exibir e salvar os dados
     public void exibirStatus() {
         System.out.println("Knight: " + nome);
         System.out.println("Level: " + level);
         System.out.println("Skill: " + skill);
-    }
-
-    public void salvarDados() {
-        System.out.println("Salvando dados de Knight...");
     }
 
     // Getters e setters
@@ -42,7 +41,8 @@ public class Knight {
     public int getSkill() {
         return skill;
     }
-        public void setNome(String nome) {
+
+    public void setNome(String nome) {
         this.nome = nome;
     }
 

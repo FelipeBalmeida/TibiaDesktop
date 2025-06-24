@@ -3,54 +3,95 @@ package Controller;
 import Model.Druid;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DruidController {
 
-    private List<Druid> druids = new ArrayList<>();
+    private List<Druid> druids;
+    private final String CAMINHO_ARQUIVO = "src/Personagens/druids.dat";
 
-    // Método para salvar Druid
-    public void salvar(Druid druid) {
-        try {
-            // Caminho correto para dentro da pasta src/Personagens
-            File directory = new File("src/Personagens");
-            if (!directory.exists()) {
-                directory.mkdirs(); // Cria a pasta Personagens dentro de src, caso não exista
-            }
+    public DruidController() {
+        this.druids = carregarDruids();
+    }
 
-            // Agora salva o arquivo druids.txt dentro de src/Personagens
-            PrintWriter writer = new PrintWriter(new FileWriter("src/Personagens/druids.txt", true));
-            writer.println(druid.getNome() + "," + druid.getLevel() + "," + druid.getMagicLevel());
-            druids.add(druid);
-            writer.close();
-            System.out.println("Druid salvo com sucesso!");
+    private void salvarTodosDruids() {
+        File directory = new File("src/Personagens");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        try (FileOutputStream fileOut = new FileOutputStream(CAMINHO_ARQUIVO);
+             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
+
+            objectOut.writeObject(druids);
+
         } catch (IOException e) {
-            System.out.println("Erro ao salvar Druid: " + e.getMessage());
+            System.out.println("Erro ao salvar todos os Druids: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    // Método para excluir Druid
+    private List<Druid> carregarDruids() {
+        File file = new File(CAMINHO_ARQUIVO);
+        if (!file.exists()) {
+            return new ArrayList<>();
+        }
+
+        try (FileInputStream fileIn = new FileInputStream(CAMINHO_ARQUIVO);
+             ObjectInputStream objectIn = new ObjectInputStream(fileIn)) { // AQUI ESTÁ A CORREÇÃO
+
+            List<Druid> loadedDruids = (List<Druid>) objectIn.readObject();
+            return loadedDruids;
+
+        } catch (FileNotFoundException e) {
+            return new ArrayList<>();
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    public void salvar(Druid druid) {
+        this.druids.add(druid);
+        salvarTodosDruids();
+    }
+
     public void excluir(String nome) {
-        for (Druid druid : druids) {
-            if (druid.getNome().equals(nome)) {
-                druids.remove(druid);
-                System.out.println("Druid " + nome + " excluído com sucesso!");
-                return;
-            }
+        boolean removido = druids.removeIf(druid -> druid.getNome().equals(nome));
+        if (removido) {
+            salvarTodosDruids();
         }
-        System.out.println("Druid não encontrado.");
     }
 
-    // Método para alterar dados de Druid
     public void alterar(String nome, int level, int magicLevel) {
+        boolean alterado = false;
         for (Druid druid : druids) {
             if (druid.getNome().equals(nome)) {
                 druid.setLevel(level);
                 druid.setMagicLevel(magicLevel);
-                System.out.println("Dados do Druid " + nome + " alterados com sucesso!");
-                return;
+                alterado = true;
+                break;
             }
         }
-        System.out.println("Druid não encontrado.");
+        if (alterado) {
+            salvarTodosDruids();
+        }
+    }
+
+    public List<Druid> getTodosDruids() {
+        return new ArrayList<>(this.druids);
+    }
+
+    public Druid buscarPorNome(String nome) {
+        for (Druid druid : druids) {
+            if (druid.getNome().equals(nome)) {
+                return druid;
+            }
+        }
+        return null;
     }
 }
