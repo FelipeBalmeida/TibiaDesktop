@@ -188,6 +188,11 @@ public class PaladinJanela extends javax.swing.JFrame {
                 jButtonPesquisarPaladinMouseClicked(evt);
             }
         });
+        jButtonPesquisarPaladin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPesquisarPaladinActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -381,26 +386,38 @@ public class PaladinJanela extends javax.swing.JFrame {
             return;
         }
 
-        Paladin foundPaladin = controller.buscarPorNome(nomePesquisa); // Usa o controller para buscar
+        Paladin foundPaladin = controller.buscarPorNome(nomePesquisa);
 
         if (foundPaladin != null) {
-            // Atualiza campos com o Paladin encontrado
-            jTextFieldNomePaladin.setText(foundPaladin.getNome());
-            jTextFieldLevelPaladin.setText(String.valueOf(foundPaladin.getLevel()));
-            jTextFieldSkillPaladin.setText(String.valueOf(foundPaladin.getSkill()));
+            carregarPaladins(); // Garante que paladinsList está atualizada com os dados mais recentes do BD
+            
+            int index = -1;
+            for (int i = 0; i < paladinsList.size(); i++) {
+                if (paladinsList.get(i).getNome().equalsIgnoreCase(foundPaladin.getNome())) {
+                    index = i;
+                    break;
+                }
+            }
+            
+            if (index != -1) {
+                currentIndex = index;
+                exibirPaladin();
+                JOptionPane.showMessageDialog(this, "Paladin '" + nomePesquisa + "' encontrado com sucesso!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Paladin com nome '" + nomePesquisa + "' encontrado no BD, mas não exibido. Tente recarregar a janela.");
+            }
 
-            // Atualiza o currentIndex para o Paladin encontrado
-            carregarPaladins(); // Garante que a lista local paladinsList está atualizada antes de buscar o índice
-            currentIndex = paladinsList.indexOf(foundPaladin);
-
-            // Atualiza label
-            exibirPaladin();
-
-            JOptionPane.showMessageDialog(this, "Paladin '" + nomePesquisa + "' encontrado com sucesso!");
         } else {
             JOptionPane.showMessageDialog(this, "Paladin com nome '" + nomePesquisa + "' não encontrado.");
+            jTextFieldNomePaladin.setText("");
+            jTextFieldLevelPaladin.setText("");
+            jTextFieldSkillPaladin.setText("");
         }
     }//GEN-LAST:event_jButtonPesquisarPaladinMouseClicked
+
+    private void jButtonPesquisarPaladinActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPesquisarPaladinActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonPesquisarPaladinActionPerformed
 
     /**
      * @param args the command line arguments

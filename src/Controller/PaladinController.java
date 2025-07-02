@@ -1,97 +1,37 @@
 package Controller;
 
 import Model.Paladin;
+import DAO.PaladinDAO;
 
-import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.ArrayList; // Mantido, embora getTodosPaladins agora venha do DAO
 
 public class PaladinController {
 
-    private List<Paladin> paladins;
-    private final String CAMINHO_ARQUIVO = "src/Personagens/paladins.dat";
+    private PaladinDAO paladinDAO;
 
     public PaladinController() {
-        this.paladins = carregarPaladins();
-    }
-
-    private void salvarTodosPaladins() {
-        File directory = new File("src/Personagens");
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        try (FileOutputStream fileOut = new FileOutputStream(CAMINHO_ARQUIVO);
-             ObjectOutputStream objectOut = new ObjectOutputStream(fileOut)) {
-
-            objectOut.writeObject(paladins);
-
-        } catch (IOException e) {
-            System.out.println("Erro ao salvar todos os Paladins: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private List<Paladin> carregarPaladins() {
-        File file = new File(CAMINHO_ARQUIVO);
-        if (!file.exists()) {
-            return new ArrayList<>();
-        }
-
-        try (FileInputStream fileIn = new FileInputStream(CAMINHO_ARQUIVO);
-             ObjectInputStream objectIn = new ObjectInputStream(fileIn)) {
-
-            List<Paladin> loadedPaladins = (List<Paladin>) objectIn.readObject();
-            return loadedPaladins;
-
-        } catch (FileNotFoundException e) {
-            return new ArrayList<>();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
+        this.paladinDAO = new PaladinDAO();
     }
 
     public void salvar(Paladin paladin) {
-        this.paladins.add(paladin);
-        salvarTodosPaladins();
+        paladinDAO.inserir(paladin);
     }
 
     public void excluir(String nome) {
-        boolean removido = paladins.removeIf(paladin -> paladin.getNome().equals(nome));
-        if (removido) {
-            salvarTodosPaladins();
-        }
+        paladinDAO.excluir(nome);
     }
 
     public void alterar(String nome, int level, int skill) {
-        boolean alterado = false;
-        for (Paladin paladin : paladins) {
-            if (paladin.getNome().equals(nome)) {
-                paladin.setLevel(level);
-                paladin.setSkill(skill);
-                alterado = true;
-                break;
-            }
-        }
-        if (alterado) {
-            salvarTodosPaladins();
-        }
+        Paladin paladinParaAlterar = new Paladin(nome, level, skill);
+        paladinDAO.atualizar(paladinParaAlterar);
     }
 
     public List<Paladin> getTodosPaladins() {
-        return new ArrayList<>(this.paladins);
+        return paladinDAO.listarTodos();
     }
 
     public Paladin buscarPorNome(String nome) {
-        for (Paladin paladin : paladins) {
-            if (paladin.getNome().equals(nome)) {
-                return paladin;
-            }
-        }
-        return null;
+        return paladinDAO.buscarPorNome(nome);
     }
 }

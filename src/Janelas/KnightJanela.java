@@ -183,6 +183,11 @@ public class KnightJanela extends javax.swing.JFrame {
                 jButtonPesquisarKnightMouseClicked(evt);
             }
         });
+        jButtonPesquisarKnight.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPesquisarKnightActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -372,25 +377,38 @@ public class KnightJanela extends javax.swing.JFrame {
             return;
         }
 
-        Knight foundKnight = controller.buscarPorNome(nomePesquisa); // Usa o controller para buscar
+        Knight foundKnight = controller.buscarPorNome(nomePesquisa);
 
         if (foundKnight != null) {
-            // Atualiza campos com o Knight encontrado
-            jTextFieldNomeKnight.setText(foundKnight.getNome());
-            jTextFieldLevelKnight.setText(String.valueOf(foundKnight.getLevel()));
-            jTextFieldSkillKnight.setText(String.valueOf(foundKnight.getSkill()));
+            carregarKnights(); // Garante que knightsList está atualizada com os dados mais recentes do BD
+            
+            int index = -1;
+            for (int i = 0; i < knightsList.size(); i++) {
+                if (knightsList.get(i).getNome().equalsIgnoreCase(foundKnight.getNome())) {
+                    index = i;
+                    break;
+                }
+            }
+            
+            if (index != -1) {
+                currentIndex = index;
+                exibirKnight();
+                JOptionPane.showMessageDialog(this, "Knight '" + nomePesquisa + "' encontrado com sucesso!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Knight com nome '" + nomePesquisa + "' encontrado no BD, mas não exibido. Tente recarregar a janela.");
+            }
 
-            // Atualiza o currentIndex para o Knight encontrado
-            currentIndex = knightsList.indexOf(foundKnight);
-
-            // Atualiza label
-            exibirKnight();
-
-            JOptionPane.showMessageDialog(this, "Knight '" + nomePesquisa + "' encontrado com sucesso!");
         } else {
             JOptionPane.showMessageDialog(this, "Knight com nome '" + nomePesquisa + "' não encontrado.");
+            jTextFieldNomeKnight.setText("");
+            jTextFieldLevelKnight.setText("");
+            jTextFieldSkillKnight.setText("");
         }
     }//GEN-LAST:event_jButtonPesquisarKnightMouseClicked
+
+    private void jButtonPesquisarKnightActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPesquisarKnightActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonPesquisarKnightActionPerformed
 
     /**
      * @param args the command line arguments

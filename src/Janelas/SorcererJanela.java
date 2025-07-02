@@ -184,6 +184,11 @@ public class SorcererJanela extends javax.swing.JFrame {
                 jButtonPesquisarSorcererMouseClicked(evt);
             }
         });
+        jButtonPesquisarSorcerer.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPesquisarSorcererActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -373,27 +378,44 @@ public class SorcererJanela extends javax.swing.JFrame {
             return;
         }
 
-        Sorcerer foundSorcerer = controller.buscarPorNome(nomePesquisa); // Usa o controller para buscar
+        Sorcerer foundSorcerer = controller.buscarPorNome(nomePesquisa);
 
         if (foundSorcerer != null) {
-            // Atualiza campos com o Sorcerer encontrado
-            jTextFieldNomeSorcerer.setText(foundSorcerer.getNome());
-            jTextFieldLevelSorcerer.setText(String.valueOf(foundSorcerer.getLevel()));
-            jTextPaneMagicLevelSorcerer.setText(String.valueOf(foundSorcerer.getMagicLevel()));
+            carregarSorcerers(); // Garante que sorcerersList está atualizada com os dados mais recentes do BD
 
-            // Atualiza o currentIndex para o Sorcerer encontrado
-            carregarSorcerers(); // Garante que a lista local sorcerersList está atualizada antes de buscar o índice
-            currentIndex = sorcerersList.indexOf(foundSorcerer);
+            // Encontra o índice do Sorcerer encontrado na lista atualizada
+            // Isso é importante para que os botões de navegação (próximo/anterior) funcionem a partir do item encontrado
+            int index = -1;
+            for (int i = 0; i < sorcerersList.size(); i++) {
+                if (sorcerersList.get(i).getNome().equalsIgnoreCase(foundSorcerer.getNome())) {
+                    index = i;
+                    break;
+                }
+            }
 
-            // Atualiza label
-            exibirSorcerer();
+            if (index != -1) { // Se o sorcerer foi encontrado na lista local
+                currentIndex = index;
+                exibirSorcerer(); // Atualiza a exibição para o Sorcerer encontrado
+                JOptionPane.showMessageDialog(this, "Sorcerer '" + nomePesquisa + "' encontrado com sucesso!");
+            } else {
+                // Caso raríssimo onde o item foi encontrado no BD mas não na lista local (por algum motivo de sincronização)
+                // Poderíamos recarregar e tentar novamente, mas para este caso, uma mensagem simples.
+                JOptionPane.showMessageDialog(this, "Sorcerer com nome '" + nomePesquisa + "' encontrado no BD, mas não exibido. Tente recarregar a janela.");
+            }
 
-            JOptionPane.showMessageDialog(this, "Sorcerer '" + nomePesquisa + "' encontrado com sucesso!");
         } else {
             JOptionPane.showMessageDialog(this, "Sorcerer com nome '" + nomePesquisa + "' não encontrado.");
+            // Opcional: Limpar os campos de texto se a busca falhar
+            jTextFieldNomeSorcerer.setText("");
+            jTextFieldLevelSorcerer.setText("");
+            jTextPaneMagicLevelSorcerer.setText("");
         }
 
     }//GEN-LAST:event_jButtonPesquisarSorcererMouseClicked
+
+    private void jButtonPesquisarSorcererActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPesquisarSorcererActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonPesquisarSorcererActionPerformed
 
     /**
      * @param args the command line arguments

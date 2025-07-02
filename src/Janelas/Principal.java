@@ -8,6 +8,7 @@ import Janelas.KnightJanela;
 import Janelas.PaladinJanela;
 import Janelas.SorcererJanela;
 import Janelas.DruidJanela;
+import Janelas.RankingJanela;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import java.awt.Image;
@@ -62,6 +63,7 @@ public class Principal extends javax.swing.JFrame {
         jButtonSorcerer = new javax.swing.JButton();
         jButtonPaladin = new javax.swing.JButton();
         jButtonDruid = new javax.swing.JButton();
+        jButton1 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -108,17 +110,25 @@ public class Principal extends javax.swing.JFrame {
             }
         });
 
+        jButton1.setText("Ranking");
+        jButton1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                jButton1MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                    .addComponent(jButtonSorcerer, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonKnight, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonPaladin, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jButtonDruid, javax.swing.GroupLayout.PREFERRED_SIZE, 106, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                    .addComponent(jButtonSorcerer, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
+                    .addComponent(jButtonKnight, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
+                    .addComponent(jButtonPaladin, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
+                    .addComponent(jButtonDruid, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 106, Short.MAX_VALUE)
+                    .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addContainerGap(294, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -132,7 +142,9 @@ public class Principal extends javax.swing.JFrame {
                 .addComponent(jButtonDruid)
                 .addGap(18, 18, 18)
                 .addComponent(jButtonSorcerer)
-                .addContainerGap(147, Short.MAX_VALUE))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addComponent(jButton1)
+                .addContainerGap(112, Short.MAX_VALUE))
         );
 
         pack();
@@ -170,6 +182,11 @@ public class Principal extends javax.swing.JFrame {
         druidJanela.setVisible(true);
     }//GEN-LAST:event_jButtonDruidMouseClicked
 
+    private void jButton1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButton1MouseClicked
+        RankingJanela rankingJanela = new RankingJanela();
+        rankingJanela.setVisible(true);
+    }//GEN-LAST:event_jButton1MouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -206,6 +223,7 @@ public class Principal extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
     private javax.swing.JButton jButtonDruid;
     private javax.swing.JButton jButtonKnight;
     private javax.swing.JButton jButtonPaladin;

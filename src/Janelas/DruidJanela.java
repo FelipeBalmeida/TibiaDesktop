@@ -188,6 +188,11 @@ public class DruidJanela extends javax.swing.JFrame {
                 jButtonPesquisarDruidMouseClicked(evt);
             }
         });
+        jButtonPesquisarDruid.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButtonPesquisarDruidActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -372,34 +377,44 @@ public class DruidJanela extends javax.swing.JFrame {
     }//GEN-LAST:event_jTextFieldNomeDruidActionPerformed
 
     private void jButtonPesquisarDruidMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jButtonPesquisarDruidMouseClicked
-        String nomePesquisa = jTextFieldNomeDruid.getText().trim();
+       String nomePesquisa = jTextFieldNomeDruid.getText().trim();
         if (nomePesquisa.isEmpty()) {
             JOptionPane.showMessageDialog(this, "Por favor, informe o nome para pesquisar.");
             return;
         }
 
-        Druid foundDruid = controller.buscarPorNome(nomePesquisa); // Usa o controller para buscar
+        Druid foundDruid = controller.buscarPorNome(nomePesquisa);
 
         if (foundDruid != null) {
-            // Atualiza campos com o Druid encontrado
-            jTextFieldNomeDruid.setText(foundDruid.getNome());
-            jTextFieldLevelDruid.setText(String.valueOf(foundDruid.getLevel()));
-            jTextPaneMagicLevelDruid.setText(String.valueOf(foundDruid.getMagicLevel()));
+            carregarDruids(); // Garante que druidsList está atualizada com os dados mais recentes do BD
+            
+            int index = -1;
+            for (int i = 0; i < druidsList.size(); i++) {
+                if (druidsList.get(i).getNome().equalsIgnoreCase(foundDruid.getNome())) {
+                    index = i;
+                    break;
+                }
+            }
+            
+            if (index != -1) {
+                currentIndex = index;
+                exibirDruid();
+                JOptionPane.showMessageDialog(this, "Druid '" + nomePesquisa + "' encontrado com sucesso!");
+            } else {
+                JOptionPane.showMessageDialog(this, "Druid com nome '" + nomePesquisa + "' encontrado no BD, mas não exibido. Tente recarregar a janela.");
+            }
 
-            // Atualiza o currentIndex para o Druid encontrado
-            // Primeiro, garantir que druidsList está atualizada (chamar carregarDruids() antes, se houver risco de dessincronização)
-            // No entanto, se o controller sempre retornar a lista mais recente, o indexOf funcionará.
-            carregarDruids(); // Garante que a lista local druidsList está atualizada antes de buscar o índice
-            currentIndex = druidsList.indexOf(foundDruid);
-
-            // Atualiza label
-            exibirDruid();
-
-            JOptionPane.showMessageDialog(this, "Druid '" + nomePesquisa + "' encontrado com sucesso!");
         } else {
             JOptionPane.showMessageDialog(this, "Druid com nome '" + nomePesquisa + "' não encontrado.");
+            jTextFieldNomeDruid.setText("");
+            jTextFieldLevelDruid.setText("");
+            jTextPaneMagicLevelDruid.setText("");
         }
     }//GEN-LAST:event_jButtonPesquisarDruidMouseClicked
+
+    private void jButtonPesquisarDruidActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButtonPesquisarDruidActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButtonPesquisarDruidActionPerformed
 
     /**
      * @param args the command line arguments
